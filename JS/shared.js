@@ -1,6 +1,6 @@
 // =============================================
-//  shared.js — Estado global y utilidades
-//  Conectado a API PHP con caché en localStorage
+//  shared.js — Pequeñas Historias Grandes Valores
+//  Estado global y utilidades — MIGRADO A SUPABASE
 // =============================================
 
 'use strict';
@@ -17,10 +17,9 @@ let usuarioNombre  = null;
 let usuarioAvatar  = null;
 
 // ── Detectar rutas ────────────────────────────
-const IS_IN_VIEWS = window.location.pathname.includes('/views/');
-const API_BASE    = IS_IN_VIEWS ? '../api'            : './api';
-const STORIES_PATH= IS_IN_VIEWS ? '../assets/cuentos.json' : './assets/cuentos.json';
-const LOGIN_URL   = IS_IN_VIEWS ? '../login.html'     : 'login.html';
+const IS_IN_VIEWS  = window.location.pathname.includes('/views/');
+const STORIES_PATH = IS_IN_VIEWS ? '../assets/cuentos.json' : './assets/cuentos.json';
+const LOGIN_URL    = IS_IN_VIEWS ? '../login.html'          : 'login.html';
 
 // ── Estado localStorage ───────────────────────
 function loadState() {
@@ -42,39 +41,46 @@ function hasVotedAny()  { return votedIds.length > 0; }
 function hasRead(id)    { return readIds.includes(id); }
 function markAsRead(id) { if (!readIds.includes(id)) { readIds.push(id); saveState(); } }
 
-// ── Verificar sesión Supabase ──────────────────
+// ── Verificar sesión con Supabase ─────────────
 async function checkSession() {
   try {
-    if (!supabase) return { ok: true, logueado: false };
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (session && session.user) {
-      const user = session.user;
-      usuarioId     = user.id;
-      usuarioNombre = user.user_metadata?.full_name || user.email.split('@')[0];
-      usuarioAvatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+    const { data: { session }, error } = await window.supabaseClient.auth.getSession();
 
-      // Consultar el voto del usuario en la tabla 'votos' de Supabase
-      const { data: votoData } = await supabase
-        .from('votos')
-        .select('cuento_id')
-        .eq('usuario_id', user.id)
-        .maybeSingle();
-
-      if (votoData) {
-        votedIds = [votoData.cuento_id];
-        saveState();
-      }
-
-      return { ok: true, logueado: true, usuario_id: usuarioId, nombre: usuarioNombre, avatar_url: usuarioAvatar, voto_cuento: votedIds[0] };
+    if (error || !session) {
+      return { ok: true, logueado: false };
     }
-    return { ok: true, logueado: false };
+
+    const user    = session.user;
+    usuarioId     = user.id;
+    usuarioNombre = user.user_metadata?.full_name || user.email.split('@')[0];
+    usuarioAvatar = user.user_metadata?.avatar_url || null;
+
+    // Sincronizar voto desde Supabase
+    const { data: votoData } = await window.supabaseClient
+      .from('votos')
+      .select('cuento_id')
+      .eq('usuario_id', usuarioId)
+      .maybeSingle();
+
+    if (votoData) {
+      votedIds = [votoData.cuento_id];
+      saveState();
+    }
+
+    return {
+      ok:         true,
+      logueado:   true,
+      usuario_id: usuarioId,
+      nombre:     usuarioNombre,
+      avatar_url: usuarioAvatar,
+      voto_cuento: votoData?.cuento_id ?? null,
+    };
   } catch (_) {
     return { ok: true, logueado: false };
   }
 }
 
-// ── Renderizar widget de usuario en el header ──
+// ── Widget de usuario en el header ────────────
 function renderUserWidget(sessionData) {
   const widget = document.getElementById('user-widget');
   if (!widget) return;
@@ -98,20 +104,16 @@ function renderUserWidget(sessionData) {
       </div>`;
     document.getElementById('btn-logout')?.addEventListener('click', logout);
   } else {
-    widget.innerHTML = `
-      <a href="${LOGIN_URL}" class="btn-login-header">Iniciar Sesión</a>`;
+    widget.innerHTML = `<a href="${LOGIN_URL}" class="btn-login-header">Iniciar Sesión</a>`;
   }
 }
 
-// ── Logout Supabase ────────────────────────────
+// ── Logout ────────────────────────────────────
 async function logout() {
   try {
-    if (supabase) {
-      await supabase.auth.signOut();
-    }
+    await window.supabaseClient.auth.signOut();
   } catch (_) {}
 
-  // Limpiar estado local
   usuarioId     = null;
   usuarioNombre = null;
   usuarioAvatar = null;
@@ -121,34 +123,26 @@ async function logout() {
   window.location.href = LOGIN_URL;
 }
 
-// ── Cargar cuentos con votos de Supabase ───────
+// ── Cargar cuentos desde JSON ─────────────────
 async function loadStories() {
   const res = await fetch(STORIES_PATH);
   stories   = await res.json();
 
-  stories.forEach(s => s.votes = 0);
-
+  // Cargar votos reales desde Supabase
   try {
-    if (supabase) {
-      const { data: votos, error } = await supabase
-        .from('votos')
-        .select('cuento_id');
+    const { data: votosData } = await window.supabaseClient
+      .from('votos')
+      .select('cuento_id');
 
-      if (!error && votos) {
-        const conteos = {};
-        votos.forEach(v => {
-          conteos[v.cuento_id] = (conteos[v.cuento_id] || 0) + 1;
-        });
-
-        stories.forEach(s => {
-          s.votes = conteos[s.id] || 0;
-        });
-
-        const ordenados = [...stories].sort((a, b) => b.votes - a.votes);
-        stories.forEach(s => {
-          s.posicion = ordenados.findIndex(x => x.id === s.id) + 1;
-        });
-      }
+    if (votosData) {
+      // Contar votos por cuento
+      const conteo = {};
+      votosData.forEach(v => {
+        conteo[v.cuento_id] = (conteo[v.cuento_id] || 0) + 1;
+      });
+      stories.forEach(s => {
+        if (conteo[s.id] !== undefined) s.votes = conteo[s.id];
+      });
     }
   } catch (_) {}
 }
@@ -216,17 +210,14 @@ async function castVote(id) {
   if (!s || hasVoted(id)) return;
 
   try {
-    if (!supabase) throw new Error('Supabase no inicializado');
-
-    const { error } = await supabase
+    const { error } = await window.supabaseClient
       .from('votos')
-      .insert([
-        { usuario_id: usuarioId, cuento_id: id }
-      ]);
+      .insert({ usuario_id: usuarioId, cuento_id: id });
 
     if (error) {
+      // Código 23505 = violación unique (ya votó)
       if (error.code === '23505') {
-        showToast('⛔ Ya registraste tu voto.', 'error');
+        showToast('⛔ Ya registraste un voto anteriormente', 'error');
         votedIds.push(id);
         saveState();
       } else {
@@ -239,15 +230,14 @@ async function castVote(id) {
     votedIds.push(id);
     saveState();
     showToast(`★ ¡Voto registrado para "${s.title}"!`, 'success');
+
   } catch (_) {
-    s.votes = (s.votes || 0) + 1;
-    votedIds.push(id);
-    saveState();
-    showToast('⚠️ Voto guardado localmente (sin conexión al servidor)', 'warning');
+    showToast('⚠️ Error de conexión al votar', 'error');
+    return;
   }
 
-  if (typeof renderGallery === 'function') renderGallery();
-  if (typeof renderRanking === 'function') renderRanking();
+  if (typeof renderGallery  === 'function') renderGallery();
+  if (typeof renderRanking  === 'function') renderRanking();
 }
 
 // ── Ir al lector ──────────────────────────────
