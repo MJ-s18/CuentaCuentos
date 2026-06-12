@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Pequeñas Historias Grandes Valores</title>
+  <link rel="stylesheet" href="styles/login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Banners de feedback ─────────────────── */
+    .auth-banner {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      padding: 14px 24px;
+      text-align: center;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      animation: slideDown .3s ease;
+    }
+    @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    .auth-banner--error   { background: #d9231d; color: #fff; }
+    .auth-banner--success { background: #2e7d32; color: #fff; }
+
+    /* ── Errores de campo ────────────────────── */
+    .input-error { border-color: #d9231d !important; outline: 2px solid #d9231d44; }
+    .field-error { display: block; font-size: .78rem; color: #d9231d; margin-top: 2px; margin-bottom: 4px; padding-left: 4px; }
+
+    /* ── Widget usuario en header ────────────── */
+    .user-info       { display:flex; align-items:center; gap:8px; }
+    .user-avatar     { width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid #fff; }
+    .user-initials   { width:32px; height:32px; border-radius:50%; background:#ff7a18; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; }
+    .user-name       { color:#fff; font-weight:600; font-size:.95rem; }
+    .btn-logout      { display:flex; align-items:center; gap:4px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.4); color:#fff; border-radius:8px; padding:4px 10px; cursor:pointer; font-size:.85rem; font-family:'Fredoka',sans-serif; transition:background .2s; }
+    .btn-logout:hover{ background:rgba(255,255,255,.32); }
+    .btn-login-header{ color:#fff; font-weight:600; text-decoration:none; background:rgba(255,255,255,.2); padding:6px 14px; border-radius:10px; }
+
+    /* ── Google btn ──────────────────────────── */
+    .google-btn {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #fff !important;
+      color: #444 !important;
+      border: 1px solid #ddd !important;
+      margin-top: 8px !important;
+      font-size: .95rem !important;
+      transition: box-shadow .2s, background .2s !important;
+    }
+    .google-btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,.15); background: #f8f8f8 !important; }
+    .google-btn img   { width: 20px; height: 20px; }
+
+    /* ── Divider "o" ─────────────────────────── */
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 12px 0; color: #aaa; font-size: .85rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="main-title">
+    Pequeñas Historias <br><span>GRANDES VALORES</span>
+  </h1>
+
+  <div class="wrapper">
+    <div class="card-switch">
+      <label class="switch">
+        <input type="checkbox" class="toggle" id="card-toggle">
+        <span class="slider"></span>
+        <span class="card-side"></span>
+
+        <div class="flip-card__inner">
+
+          <!-- ── FRONT: Login ── -->
+          <div class="flip-card__front">
+            <div class="titlep">Iniciar Sesión</div>
+            <form class="flip-card__form" id="login-form" novalidate>
+              <input class="flip-card__input" name="email"
+                     placeholder="Email" type="email" autocomplete="email" required>
+              <input class="flip-card__input" name="password"
+                     placeholder="Contraseña" type="password" autocomplete="current-password" required>
+              <button class="flip-card__btn" type="submit">Entrar</button>
+            </form>
+
+            <div class="divider">o</div>
+
+            <button class="flip-card__btn google-btn" id="google-login-btn" type="button">
+              <img src="https://img.icons8.com/color/24/google-logo.png" alt="Google" loading="lazy">
+              Continuar con Google
+            </button>
+          </div>
+
+          <!-- ── BACK: Registro ── -->
+          <div class="flip-card__back">
+            <div class="titlep">Crear Cuenta</div>
+            <form class="flip-card__form" id="signup-form" novalidate>
+              <input class="flip-card__input" name="name"
+                     placeholder="Nombre completo" type="text" autocomplete="name" required>
+              <input class="flip-card__input" name="email"
+                     placeholder="Email" type="email" autocomplete="email" required>
+              <input class="flip-card__input" name="number"
+                     placeholder="Teléfono (opcional)" type="tel" autocomplete="tel">
+              <input class="flip-card__input" name="password"
+                     placeholder="Contraseña (mín. 8 caracteres)" type="password"
+                     autocomplete="new-password" required>
+              <button class="flip-card__btn" type="submit">Crear cuenta</button>
+            </form>
+          </div>
+
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- Supabase CDN y Cliente -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./JS/supabase-client.js"></script>
+  <script src="./JS/main.js"></script>
+</body>
+</html>

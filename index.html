@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Pequeñas Historias</title>
+    <link rel="stylesheet" href="styles/inicio.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="top-header">
+        <h1>Pequeñas Historias <br><span>GRANDES VALORES</span></h1>
+        <div class="dropdown">
+            <button class="menu-btn" id="menu-toggle">&#9776;</button>
+            <div class="dropdown-content" id="dropdown-menu">
+                <a href="login.html">Iniciar Sesión</a>
+                <a href="./views/catalogo.html">Galería de Cuentos</a>
+                <a href="despliegue.html" style="background: rgba(255, 122, 24, 0.15); color: #ff7a18; font-weight: 600;">🛠️ Setup y QR</a>
+                <a href="#">Reglas del Concurso</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="carousel-section">
+        <button id="prev-btn" class="nav-btn">❮</button>
+        <div class="carousel-container">
+            <div class="slide active">
+                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 1" class="book-cover">
+                <div class="story-info">
+                    <h2>El pequeño inventor</h2>
+                    <h3>Autor: Pedro</h3>
+                    <p>Un niño descubre cómo darle vida a sus juguetes viejos usando pequeños cables, luces y mucha imaginación, enseñando a su pueblo el valor del reciclaje y la creatividad.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 2" class="book-cover">
+                <div class="story-info">
+                    <h2>El misterio del bosque</h2>
+                    <h3>Autora: Desconocido</h3>
+                    <p>Dos hermanos se adentran en un bosque donde los árboles susurran secretos. Allí aprenderán que escuchar es el primer paso para resolver cualquier problema.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="https://images.unsplash.com/photo-1453928582365-b6ad33cbcf64?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 3" class="book-cover">
+                <div class="story-info">
+                    <h2>El viaje del código</h2>
+                    <h3>Autora: Negron</h3>
+                    <p>Una historia sobre cómo un simple mensaje de ayuda viajó por todo el mundo a través de computadoras, conectando a personas que nunca se habían visto.</p>
+                </div>
+            </div>
+            <div class="slide">
+                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 4" class="book-cover">
+                <div class="story-info">
+                    <h2>El reloj de arena</h2>
+                    <h3>Autor: Mariano</h3>
+                    <p>En un pequeño pueblo, un relojero encuentra un reloj de arena mágico que le permite pausar el tiempo. Pronto descubrirá que los mejores momentos son los que se comparten sin prisa.</p>
+                </div>
+            </div>
+        </div>
+        <button id="next-btn" class="nav-btn">❯</button>
+    </main>
+
+    <footer class="news-section">
+        <div class="news-card">
+            <img src="https://unifranz.edu.bo/wp-content/uploads/2024/05/cannes-lions-unifranz.jpg" alt="Unifranz Cannes Lions">
+            <div class="news-text">
+                <h4>Unifranz y Cannes Lions: Oportunidades Globales</h4>
+                <p>La alianza que abre puertas para el talento creativo boliviano a nivel internacional.</p>
+                <a href="https://unifranz.edu.bo/blog/unifranz-y-cannes-lions-la-alianza-que-abre-oportunidades-globales-para-el-talento-creativo-boliviano/" target="_blank">Leer más</a>
+            </div>
+        </div>
+        <div class="news-card">
+            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=300&q=80" alt="Ingeniería Unifranz">
+            <div class="news-text">
+                <h4>Innovación en Ingeniería de Sistemas</h4>
+                <p>Estudiantes de la sede Santa Cruz desarrollan nuevas plataformas web interactivas para la comunidad.</p>
+                <a href="#" target="_blank">Leer más</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const menuBtn = document.getElementById("menu-toggle");
+            const dropdown = document.querySelector(".dropdown");
+
+            menuBtn.addEventListener("click", (e) => {
+                e.stopPropagation(); 
+                dropdown.classList.toggle("show");
+            });
+
+            window.addEventListener("click", () => {
+                if (dropdown.classList.contains("show")) {
+                    dropdown.classList.remove("show");
+                }
+            });
+
+            const slides = document.querySelectorAll('.slide');
+            const btnPrev = document.getElementById('prev-btn');
+            const btnNext = document.getElementById('next-btn');
+            
+            let currentSlide = 0;
+            let autoPlayInterval;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.remove('active');
+                    if (i === index) {
+                        slide.classList.add('active');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            function resetInterval() {
+                clearInterval(autoPlayInterval);
+                startAutoPlay();
+            }
+
+            btnNext.addEventListener('click', () => {
+                nextSlide();
+                resetInterval();
+            });
+
+            btnPrev.addEventListener('click', () => {
+                prevSlide();
+                resetInterval();
+            });
+
+            function startAutoPlay() {
+                autoPlayInterval = setInterval(nextSlide, 20000);
+            }
+
+            startAutoPlay();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración y Generador QR — Pequeñas Historias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(22, 28, 45, 0.6);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #ff7a18;
+      --primary-glow: rgba(255, 122, 24, 0.3);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --error: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Fredoka', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 122, 24, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--primary), #ffb84d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 30px;
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .nav-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    @media (min-width: 800px) {
+      .container {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    h2 span.icon {
+      font-size: 24px;
+    }
+
+    /* --- FORMULARIOS --- */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    input, select {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px var(--primary-glow);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    /* --- BADGE CONEXIÓN --- */
+    .connection-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .connection-badge.connected {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.05);
+      color: var(--success);
+    }
+
+    .connection-badge.error {
+      border-color: var(--error);
+      background: rgba(239, 68, 68, 0.05);
+      color: var(--error);
+    }
+
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .connected .badge-dot {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 1.8s infinite;
+    }
+
+    .error .badge-dot {
+      background: var(--error);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.6; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* --- QR DISPLAY --- */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      border: 1px dashed var(--border);
+    }
+
+    .qr-box {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    /* --- GUÍA VERCEL --- */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .step {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .step-content h3 {
+      font-size: 15px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .code-box {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #34d399;
+      margin-top: 6px;
+      word-break: break-all;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Conectar Supabase y <span>Dominio Vercel</span></h1>
+    <p class="subtitle">Configura tu base de datos en la nube y genera tu código QR para el concurso</p>
+    <a href="index.html" class="nav-btn">← Volver al Inicio</a>
+  </header>
+
+  <div class="container">
+    
+    <!-- COLUMNA IZQUIERDA: CONFIGURAR Y QR -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+      
+      <!-- CARD 1: CONFIGURAR SUPABASE -->
+      <section class="card">
+        <h2><span class="icon">⚡</span> Configurar Supabase Localmente</h2>
+        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.5;">
+          Introduce los datos de tu proyecto de Supabase. Esto se guardará localmente en tu navegador para que puedas probar la aplicación de inmediato sin editar archivos de código.
+        </p>
+
+        <div class="form-group">
+          <label for="sbUrl">SUPABASE URL</label>
+          <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
+        </div>
+
+        <div class="form-group">
+          <label for="sbKey">SUPABASE ANON KEY</label>
+          <input type="text" id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn" style="flex: 1;" onclick="saveConfig()">Guardar Configuración</button>
+          <button class="btn btn-secondary" onclick="clearConfig()">Restablecer</button>
+        </div>
+
+        <div class="connection-badge" id="connBadge">
+          <div class="badge-dot"></div>
+          <span id="connText">Esperando credenciales...</span>
+        </div>
+      </section>
+
+      <!-- CARD 2: GENERADOR QR -->
+      <section class="card">
+        <h2><span class="icon">📱</span> Generador de Código QR para Ingresar</h2>
+        <p style="font-size: 14px; color: var(--text-muted);">
+          Genera el código QR para que las personas ingresen a tu web. Escribe el dominio final que te dé **Vercel** (ej: <code>https://historias.vercel.app</code>).
+        </p>
+
+        <div class="form-group">
+          <label for="qrUrl">URL de la Página Web</label>
+          <input type="text" id="qrUrl" value="http://localhost/pedro/" placeholder="https://tu-proyecto.vercel.app">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label for="qrColor">Color QR</label>
+            <input type="color" id="qrColor" value="#ff7a18" style="padding: 2px; height: 40px; cursor: pointer;">
+          </div>
+          <div class="form-group">
+            <label for="qrSize">Tamaño (px)</label>
+            <select id="qrSize">
+              <option value="150">Pequeño (150px)</option>
+              <option value="250" selected>Mediano (250px)</option>
+              <option value="400">Grande (400px)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="qr-container">
+          <div class="qr-box" id="qrcode"></div>
+          <button class="btn btn-secondary" style="width: 100%;" onclick="downloadQR()">📥 Descargar Código QR</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: GUÍA DESPLIEGUE -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+      
+      <!-- CARD 3: PASOS VERCEL -->
+      <section class="card">
+        <h2><span class="icon">🚀</span> Pasos para subir tu web a Vercel</h2>
+        
+        <div class="steps">
+          
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Preparar base de datos en Supabase</h3>
+              <p>Ve a tu panel de Supabase, entra en <strong>SQL Editor</strong>, abre una consulta en blanco e importa el archivo:</p>
+              <div class="code-box">sql/supabase_setup.sql</div>
+              <p style="margin-top: 5px;">Esto creará la tabla de <code>votos</code> protegida con Row Level Security.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Modificar las credenciales en el archivo JS</h3>
+              <p>Abre el archivo <code>JS/supabase-client.js</code> y reemplaza las variables placeholders por tus credenciales de Supabase. Así no dependerás del almacenamiento local.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Crear Repositorio en GitHub</h3>
+              <p>Inicializa Git en tu carpeta de proyecto y súbelo a un repositorio público o privado en GitHub:</p>
+              <div class="code-box">
+                git init<br>
+                git add .<br>
+                git commit -m "Migración a Supabase"<br>
+                git branch -M main<br>
+                git remote add origin TU_URL_DE_GITHUB<br>
+                git push -u origin main
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Conectar GitHub con Vercel</h3>
+              <p>
+                1. Ve a <a href="https://vercel.com" target="_blank" style="color: var(--primary);">vercel.com</a> y crea una cuenta.<br>
+                2. Haz clic en <strong>Add New → Project</strong>.<br>
+                3. Conecta tu cuenta de GitHub e importa tu repositorio recién creado.<br>
+                4. Haz clic en <strong>Deploy</strong> (No necesitas configurar variables en este caso).
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h3>¡Listo! Obtén tu dominio y crea tu QR</h3>
+              <p>Vercel te dará un dominio gratuito con extensión <code>.vercel.app</code>. Cópialo, colócalo arriba en el generador de QR, personalízalo y descárgalo para pegarlo en tu afiche o presentación.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <h3>(Opcional) Activar Google OAuth</h3>
+              <p>Si deseas activar el Login con Google, en la consola de Google Cloud, agrega el dominio de Vercel en las URIs autorizadas:</p>
+              <div class="code-box">https://TU_PROYECTO.vercel.app/views/catalogo.html</div>
+              <p style="margin-top: 5px;">Y configúralo en los ajustes de Supabase → Authentication → Providers → Google.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- CDN de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- CDN de QRCode -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    let qrcodeInstance = null;
+    let supabaseClientInstance = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Cargar configuraciones guardadas
+      document.getElementById('sbUrl').value = localStorage.getItem('phgv_supabase_url') || '';
+      document.getElementById('sbKey').value = localStorage.getItem('phgv_supabase_key') || '';
+      
+      // Intentar setear valor QR por defecto con el host actual
+      const host = window.location.href.split('despliegue.html')[0];
+      document.getElementById('qrUrl').value = host;
+
+      verifySupabaseConnection();
+      generateQRCode();
+
+      // Escuchadores de eventos para el QR
+      document.getElementById('qrUrl').addEventListener('input', generateQRCode);
+      document.getElementById('qrColor').addEventListener('input', generateQRCode);
+      document.getElementById('qrSize').addEventListener('change', generateQRCode);
+    });
+
+    function saveConfig() {
+      const url = document.getElementById('sbUrl').value.trim();
+      const key = document.getElementById('sbKey').value.trim();
+
+      if (!url || !key) {
+        alert("Por favor completa ambos campos.");
+        return;
+      }
+
+      localStorage.setItem('phgv_supabase_url', url);
+      localStorage.setItem('phgv_supabase_key', key);
+
+      alert("Configuración guardada. Recargando para verificar conexión...");
+      window.location.reload();
+    }
+
+    function clearConfig() {
+      localStorage.removeItem('phgv_supabase_url');
+      localStorage.removeItem('phgv_supabase_key');
+      alert("Configuración borrada.");
+      window.location.reload();
+    }
+
+    async function verifySupabaseConnection() {
+      const badge = document.getElementById('connBadge');
+      const text = document.getElementById('connText');
+      const url = localStorage.getItem('phgv_supabase_url');
+      const key = localStorage.getItem('phgv_supabase_key');
+
+      if (!url || !key) {
+        badge.className = "connection-badge";
+        text.textContent = "Esperando credenciales locales...";
+        return;
+      }
+
+      try {
+        if (!supabaseClientInstance) {
+          if (typeof window.supabase !== 'undefined') {
+            supabaseClientInstance = window.supabase.createClient(url, key);
+          } else {
+            throw new Error("Librería de Supabase no cargada.");
+          }
+        }
+
+        // Consultar cualquier cosa para probar conexión
+        const { data, error } = await supabaseClientInstance.from('votos').select('*').limit(1);
+
+        if (error && error.code !== 'PGRST116' && error.status !== 406) {
+          // Si da un error real de red o base de datos no configurada
+          throw error;
+        }
+
+        badge.className = "connection-badge connected";
+        text.textContent = "¡Conectado exitosamente a Supabase!";
+      } catch (err) {
+        badge.className = "connection-badge error";
+        text.textContent = "Error de conexión: " + (err.message || "Credenciales incorrectas.");
+        console.error(err);
+      }
+    }
+
+    function generateQRCode() {
+      const text = document.getElementById('qrUrl').value.trim();
+      const color = document.getElementById('qrColor').value;
+      const size = parseInt(document.getElementById('qrSize').value);
+      const container = document.getElementById('qrcode');
+
+      if (!text) return;
+
+      container.innerHTML = ""; // Limpiar
+      
+      qrcodeInstance = new QRCode(container, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: color,
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function downloadQR() {
+      const container = document.getElementById('qrcode');
+      const img = container.querySelector('img');
+      
+      if (!img) {
+        // En algunos navegadores renderiza canvas en lugar de img primero
+        const canvas = container.querySelector('canvas');
+        if (canvas) {
+          triggerDownload(canvas.toDataURL("image/png"));
+          return;
+        }
+        alert("Genera el QR primero.");
+        return;
+      }
+
+      triggerDownload(img.src);
+    }
+
+    function triggerDownload(dataUri) {
+      const a = document.createElement('a');
+      a.href = dataUri;
+      a.download = 'codigo-qr-ingreso.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>

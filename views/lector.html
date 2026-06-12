@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector | Pequeñas Historias Grandes Valores</title>
+  <link rel="stylesheet" href="../styles/estilos.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+  /* ══════════════════════════════════════════════
+     BODY LECTOR
+  ══════════════════════════════════════════════ */
+  .body-lector {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: "header" "main" "footer";
+    background:
+      radial-gradient(circle at 30% 50%, rgba(255,184,77,0.10), transparent 55%),
+      linear-gradient(135deg, #1a1a1a, #262626, #1e1e1e);
+    font-family: var(--font);
+  }
+
+  .body-lector header {
+    grid-area: header;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 40px;
+  }
+
+  .body-lector main {
+    grid-area: main;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 40px 40px;
+    gap: 0;
+  }
+
+  /* ══════════════════════════════════════════════
+     ESTRELLAS DECORATIVAS DE FONDO (igual al catálogo)
+  ══════════════════════════════════════════════ */
+  .bg-stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-star {
+    position: absolute;
+    opacity: 0.055;
+    fill: #aaa;
+  }
+  .bg-star:nth-child(1) { width:120px; top:12%; left:4%; }
+  .bg-star:nth-child(2) { width:80px;  top:60%; left:2%; }
+  .bg-star:nth-child(3) { width:100px; top:30%; right:3%; }
+  .bg-star:nth-child(4) { width:70px;  top:75%; right:6%; }
+  .bg-star:nth-child(5) { width:55px;  top:80%; left:40%; }
+
+  /* ══════════════════════════════════════════════
+     VISTA PORTADA  (estado inicial: libro cerrado)
+  ══════════════════════════════════════════════ */
+  #vistaPortada {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 940px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(18px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* Panel de info izquierdo */
+  .portada-info {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+    min-width: 240px;
+    max-width: 380px;
+  }
+
+  .portada-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 20px;
+    background: transparent;
+    border: 2px solid var(--orange);
+    border-radius: 30px;
+    color: var(--orange);
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    width: fit-content;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+  }
+  .portada-back-btn:hover { background: var(--orange); color: #fff; }
+
+  .portada-titulo-pill {
+    background: var(--orange);
+    border-radius: 20px;
+    padding: 18px 28px;
+    font-family: var(--font);
+    font-size: clamp(18px, 3vw, 28px);
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+    box-shadow: 0 0 28px rgba(255,122,24,0.45), 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  .portada-autor-pill {
+    background: var(--orange);
+    border-radius: 30px;
+    padding: 9px 22px;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    width: fit-content;
+    align-self: center;
+  }
+
+  .portada-desc-pill {
+    background: rgba(180,210,60,0.18);
+    border: 1.5px solid rgba(180,210,60,0.35);
+    border-radius: 16px;
+    padding: 16px 20px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd;
+    line-height: 1.6;
+  }
+
+  .portada-colegio {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+
+  /* Tapa del libro (derecha) */
+  .portada-tapa-wrap {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .portada-tapa {
+    width: 260px;
+    height: 360px;
+    border-radius: 4px 16px 16px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 28px 20px;
+    cursor: pointer;
+    position: relative;
+    box-shadow:
+      -8px 4px 20px rgba(0,0,0,0.55),
+       4px 8px 24px rgba(0,0,0,0.4),
+      inset 6px 0 14px rgba(0,0,0,0.18);
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Lomo izquierdo de la tapa */
+  .portada-tapa::before {
+    content:'';
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:18px;
+    background: linear-gradient(to right,
+      rgba(0,0,0,0.35) 0%,
+      rgba(0,0,0,0.12) 60%,
+      transparent 100%);
+    border-radius: 4px 0 0 4px;
+  }
+
+  /* Brillo diagonal */
+  .portada-tapa::after {
+    content:'';
+    position:absolute;
+    inset:0;
+    background: linear-gradient(135deg,
+      rgba(255,255,255,0.12) 0%,
+      transparent 50%,
+      rgba(0,0,0,0.08) 100%);
+    pointer-events:none;
+  }
+
+  .portada-tapa:hover {
+    transform: perspective(600px) rotateY(-8deg) scale(1.03);
+    box-shadow:
+      -14px 6px 30px rgba(0,0,0,0.6),
+       6px 10px 30px rgba(0,0,0,0.4),
+      inset 6px 0 14px rgba(0,0,0,0.18);
+  }
+
+  .portada-tapa:active {
+    transform: perspective(600px) rotateY(-14deg) scale(0.98);
+  }
+
+  .tapa-titulo {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: rgba(255,255,255,0.92);
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    line-height: 1.25;
+    z-index: 1;
+  }
+
+  .tapa-hint {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    z-index: 1;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tapa-hint::before,
+  .tapa-hint::after { content:'›'; font-size:16px; }
+
+  /* Pulsación sutil en la tapa para llamar la atención */
+  @keyframes tapaPulse {
+    0%,100% { box-shadow: -8px 4px 20px rgba(0,0,0,0.55), 4px 8px 24px rgba(0,0,0,0.4), 0 0 0 0 rgba(255,122,24,0); }
+    50%      { box-shadow: -8px 4px 20px rgba(0,0,0,0.55), 4px 8px 24px rgba(0,0,0,0.4), 0 0 22px 6px rgba(255,122,24,0.25); }
+  }
+  .portada-tapa { animation: tapaPulse 2.8s ease-in-out infinite; }
+  .portada-tapa:hover { animation: none; }
+
+  /* ══════════════════════════════════════════════
+     VISTA LIBRO ABIERTO  (estado: leyendo)
+  ══════════════════════════════════════════════ */
+  #vistaLibro {
+    display: none;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 980px;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    animation: openBook 0.5s cubic-bezier(0.34,1.2,0.64,1) both;
+  }
+
+  @keyframes openBook {
+    from { opacity:0; transform: perspective(900px) rotateY(-18deg) scale(0.94); }
+    to   { opacity:1; transform: perspective(900px) rotateY(0deg) scale(1); }
+  }
+
+  #vistaLibro.visible { display: flex; }
+
+  /* Barra superior del lector */
+  .lector-topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .lector-titulo-bar {
+    flex: 1;
+    text-align: center;
+  }
+  .lector-titulo-bar h2 {
+    font-size: clamp(15px, 2.5vw, 22px);
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .lector-titulo-bar p {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .btn-cerrar-libro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: transparent;
+    border: 2px solid var(--orange);
+    border-radius: 30px;
+    color: var(--orange);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-cerrar-libro:hover { background: var(--orange); color: #fff; }
+
+  /* ── LIBRO (dos páginas + flechas laterales) ── */
+  .book-zone {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .btn-pagina {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background: var(--orange);
+    color: #fff;
+    font-size: 26px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 14px rgba(255,122,24,0.4);
+    line-height: 1;
+  }
+  .btn-pagina:hover:not(:disabled) {
+    background: var(--orange-dark);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255,122,24,0.55);
+  }
+  .btn-pagina:active:not(:disabled) { transform: scale(0.95); }
+  .btn-pagina:disabled {
+    background: #2c2c2c;
+    color: #4a4a4a;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .book-container { flex: 1; min-width: 0; }
+
+  /* EL LIBRO */
+  .book {
+    display: flex;
+    width: 100%;
+    min-height: 380px;
+    border-radius: 4px 14px 14px 4px;
+    box-shadow:
+      -12px 0 36px rgba(0,0,0,0.7),
+       10px 0 30px rgba(0,0,0,0.45),
+      inset 0 0 0 1px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Sombra del lomo central */
+  .book::before {
+    content:'';
+    position:absolute;
+    left:50%; top:0; bottom:0;
+    width:48px;
+    transform:translateX(-50%);
+    background: linear-gradient(to right,
+      transparent 0%,
+      rgba(0,0,0,0.08) 30%,
+      rgba(0,0,0,0.18) 50%,
+      rgba(0,0,0,0.08) 70%,
+      transparent 100%);
+    pointer-events:none;
+    z-index: 5;
+  }
+
+  .book-page {
+    flex: 1;
+    padding: 36px 32px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    background: #fdf6ee;
+  }
+
+  .book-page-right { background: #fff9f2; }
+
+  /* Lomo físico del libro */
+  .book-spine {
+    width: 24px;
+    flex-shrink: 0;
+    background: linear-gradient(to right,
+      #a07840 0%, #d4a86a 35%, #e8c99a 55%, #c8a86a 80%, #a07840 100%);
+    box-shadow:
+      inset -4px 0 10px rgba(0,0,0,0.22),
+      inset  3px 0  8px rgba(255,255,255,0.28);
+    z-index: 2;
+  }
+
+  /* Animaciones flip */
+  .book.flip-next { animation: flipNext 0.45s ease; }
+  .book.flip-prev { animation: flipPrev 0.45s ease; }
+
+  @keyframes flipNext {
+    0%   { transform: perspective(1400px) rotateY(0deg); }
+    40%  { transform: perspective(1400px) rotateY(-11deg); }
+    100% { transform: perspective(1400px) rotateY(0deg); }
+  }
+  @keyframes flipPrev {
+    0%   { transform: perspective(1400px) rotateY(0deg); }
+    40%  { transform: perspective(1400px) rotateY(11deg); }
+    100% { transform: perspective(1400px) rotateY(0deg); }
+  }
+
+  /* Número de página */
+  .pg-num {
+    position: absolute;
+    bottom: 18px;
+    font-family: var(--font);
+    font-size: 12px;
+    color: #b09070;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .book-page:first-child     .pg-num { left:  32px; }
+  .book-page-right           .pg-num { right: 32px; }
+
+  /* Capítulo label */
+  .chapter-label {
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: #c96a2d;
+    border-bottom: 1.5px solid #e09060;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+
+  /* Texto del cuento */
+  .book-text {
+    font-family: 'Georgia', serif;
+    font-size: 15px;
+    line-height: 1.88;
+    color: #2e2010;
+    text-align: justify;
+    text-indent: 1.4em;
+    flex: 1;
+  }
+
+  /* ── BARRA INFERIOR: dots + votar ── */
+  .lector-bottom {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 0 64px; /* alineado con el ancho del libro sin las flechas */
+  }
+
+  .lector-dots {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+  }
+  .l-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #383838;
+    border: 2px solid #484848;
+    transition: background 0.2s, transform 0.2s, border-color 0.2s;
+  }
+  .l-dot.done   { background: var(--orange-dark); border-color: var(--orange-dark); }
+  .l-dot.active { background: var(--orange); border-color: var(--orange); transform: scale(1.35); }
+
+  .lector-pg-label {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  /* Zona del botón votar */
+  #voteZone { min-width: 200px; display:flex; justify-content:flex-end; }
+
+  .btn-votar-lector {
+    padding: 11px 30px;
+    border-radius: 30px;
+    border: none;
+    background: var(--orange);
+    color: #fff;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,122,24,0.42);
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    animation: popIn 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes popIn {
+    from { opacity:0; transform:scale(0.7); }
+    to   { opacity:1; transform:scale(1); }
+  }
+  .btn-votar-lector:hover  { background: var(--orange-dark); box-shadow: 0 6px 22px rgba(255,122,24,0.52); }
+  .btn-votar-lector:active { transform: scale(0.96); }
+  .btn-votar-lector.voted  { background:#333; color:#666; cursor:not-allowed; box-shadow:none; }
+  .btn-votar-lector.voted:hover  { background:#333; box-shadow:none; }
+  .btn-votar-lector.locked { background:#1e1e1e; color:#444; cursor:not-allowed; box-shadow:none; border:1.5px solid #333; }
+  .btn-votar-lector.locked:hover { background:#1e1e1e; box-shadow:none; }
+
+  .vote-spacer { height: 46px; }  /* mantiene altura cuando no hay botón */
+
+  /* ══════════════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════════════ */
+  .body-lector footer {
+    grid-area: footer;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 40px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  /* ══════════════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════════════ */
+  @media (max-width: 860px) {
+    .body-lector header { padding: 16px 20px; }
+    .body-lector main   { padding: 12px 16px 30px; }
+
+    #vistaPortada { gap: 30px; flex-direction: column; align-items: center; }
+    .portada-info { max-width: 100%; text-align: center; align-items: center; }
+    .portada-tapa { width: 200px; height: 280px; }
+    .tapa-titulo  { font-size: 20px; }
+
+    .btn-pagina { width: 42px; height: 42px; font-size: 22px; }
+    .book-page  { padding: 22px 18px 38px; }
+    .book-text  { font-size: 14px; }
+    .book       { min-height: 300px; }
+    .lector-bottom { padding: 0 10px; }
+  }
+
+  @media (max-width: 560px) {
+    /* Libro apilado: una página a la vez */
+    .book { flex-direction: column; border-radius: 10px; min-height: auto; }
+    .book-spine {
+      width: 100%; height: 16px;
+      background: linear-gradient(to bottom, #a07840, #d4a86a, #e8c99a, #a07840);
+    }
+    /* Ocultar página izquierda en spreads de contenido (no portada) */
+    .book-page.hide-m { display: none; }
+
+    .book::before { display: none; }
+    .btn-pagina { width: 38px; height: 38px; font-size: 20px; }
+    .book-text  { font-size: 14px; line-height: 1.75; }
+
+    .portada-tapa { width: 180px; height: 250px; }
+    .lector-bottom { flex-direction: column; align-items: center; gap: 10px; }
+    #voteZone { justify-content: center; }
+
+    .body-lector footer {
+      padding: 20px 16px 42px;
+      flex-direction: column;
+      text-align: center;
+      gap: 18px;
+    }
+    .footer-socials { justify-content: center; }
+    .footer-socials .icon-content .tooltip { top: 45px; }
+    .footer-socials .icon-content:hover .tooltip,
+    .footer-socials .icon-content:active .tooltip { top: 60px; }
+  }
+
+  @media (max-width: 380px) {
+    .btn-pagina { width: 32px; height: 32px; font-size: 18px; }
+    .portada-tapa { width: 155px; height: 215px; }
+  }
+  </style>
+</head>
+
+<body class="body-lector">
+
+  <!-- Estrellas de fondo decorativas -->
+  <div class="bg-stars" aria-hidden="true">
+    <svg class="bg-star" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35"/></svg>
+    <svg class="bg-star" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35"/></svg>
+    <svg class="bg-star" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35"/></svg>
+    <svg class="bg-star" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35"/></svg>
+    <svg class="bg-star" viewBox="0 0 100 100"><polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35"/></svg>
+  </div>
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header>
+    <h1 class="title-catalogo">Pequeñas Historias <span>Grandes Valores</span></h1>
+    <nav style="display:flex; gap:10px; align-items:center;">
+      <a href="ranking.html"  class="btn-nav-page">🏅 Ranking</a>
+      <a href="catalogo.html" class="btn-nav-page">⌂ Catálogo</a>
+      <button class="btn-avatar" aria-label="Perfil"></button>
+    </nav>
+  </header>
+
+  <!-- ═══════ MAIN ═══════ -->
+  <main>
+
+    <!-- ── VISTA 1: PORTADA (libro cerrado) ── -->
+    <div id="vistaPortada">
+
+      <!-- Info del cuento -->
+      <div class="portada-info">
+        <a href="catalogo.html" class="portada-back-btn">← Volver al catálogo</a>
+        <div class="portada-titulo-pill"  id="infoTitulo">Cargando…</div>
+        <div class="portada-autor-pill"   id="infoAutor"></div>
+        <div class="portada-desc-pill"    id="infoDesc"></div>
+        <div class="portada-colegio"      id="infoColegio"></div>
+      </div>
+
+      <!-- Tapa del libro (clic para abrir) -->
+      <div class="portada-tapa-wrap">
+        <div class="portada-tapa" id="portadaTapa" onclick="abrirLibro()" title="Clic para leer">
+          <div class="tapa-titulo" id="tapaTitulo"></div>
+          <div class="tapa-hint">Leer</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── VISTA 2: LIBRO ABIERTO ── -->
+    <div id="vistaLibro">
+
+      <!-- Barra superior -->
+      <div class="lector-topbar">
+        <button class="btn-cerrar-libro" onclick="cerrarLibro()">← Portada</button>
+        <div class="lector-titulo-bar">
+          <h2 id="libroTitulo"></h2>
+          <p  id="libroMeta"></p>
+        </div>
+        <a href="catalogo.html" class="btn-cerrar-libro" style="text-decoration:none;">⌂ Catálogo</a>
+      </div>
+
+      <!-- Libro con flechas laterales -->
+      <div class="book-zone">
+        <button class="btn-pagina" id="btnPrev" onclick="prevSpread()" title="Anterior">&#8249;</button>
+
+        <div class="book-container">
+          <div class="book" id="elLibro">
+            <div class="book-page" id="pgLeft"></div>
+            <div class="book-spine"></div>
+            <div class="book-page book-page-right" id="pgRight"></div>
+          </div>
+        </div>
+
+        <button class="btn-pagina" id="btnNext" onclick="nextSpread()" title="Siguiente">&#8250;</button>
+      </div>
+
+      <!-- Dots + Votar -->
+      <div class="lector-bottom">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="lector-dots" id="lectorDots"></div>
+          <span class="lector-pg-label" id="pgLabel"></span>
+        </div>
+        <div id="voteZone"><div class="vote-spacer"></div></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Modal confirmación voto -->
+  <div class="vote-overlay" id="confirmVoteOverlay">
+    <div class="vote-modal">
+      <h3>⚠️ ¿Estás seguro?</h3>
+      <p>Estás a punto de votar por <strong id="confirmStoryName"></strong>.</p>
+      <div class="vote-modal-warn">
+        Solo podés votar <strong>UNA vez</strong> en toda la plataforma.<br>
+        Una vez que votes, no podrás votar por ningún otro cuento.
+      </div>
+      <div class="vote-modal-actions">
+        <button class="btn-si" onclick="confirmVoteYes()">✓ Sí, votar</button>
+        <button class="btn-no" onclick="confirmVoteNo()">✕ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer>
+    <div class="footer-logo">
+      <div class="footer-logo-box">UNIFRANZ<span>Internacionalízate</span></div>
+      <div style="font-size:11px;line-height:1.3;color:#888;">INNOVACIÓN<br>EN EDUCACIÓN</div>
+    </div>
+    <p class="footer-copy">© 2026 UNIFRANZ · Av. Bush, 2do Anillo</p>
+    <ul class="footer-socials">
+      <li class="icon-content">
+        <a href="#" aria-label="Facebook" data-social="facebook" class="link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 30 30"><path d="M29.059 15.085C29.058 7.322 22.764 1.028 15 1.028S0.941 7.323 0.941 15.087c0 6.989 5.1 12.787 11.781 13.875l0.081 0.011V19.15H9.232v-4.065h3.57v-3.096a4.962 4.962 0 0 1 5.329-5.469l-0.017-0.001c1.124 0.016 2.212 0.115 3.273 0.292l-0.126-0.018v3.459h-1.774a2.033 2.033 0 0 0-2.291 2.204l-0.001-0.008v2.636h3.899l-0.623 4.065h-3.276v9.823c6.762-1.101 11.862-6.899 11.863-13.888" fill="currentColor"/></svg>
+        </a><div class="tooltip">Facebook</div>
+      </li>
+      <li class="icon-content">
+        <a href="#" aria-label="Instagram" data-social="instagram" class="link">
+          <svg version="1.1" viewBox="0 0 100 100"><path d="M60 45a15 15 0 1 0-4.395 10.61A14.4 14.4 0 0 0 60 45.225l-0.004-0.237zm8.1 0a23.006 23.006 0 1 1-6.738-16.347 22.2 22.2 0 0 1 6.742 15.96l-0.004 0.41v-0.02zm6.327-24.022v0.008a5.4 5.4 0 1 1-1.582-3.818 5.177 5.177 0 0 1 1.556 3.705v0.11zm-29.4-12.9-4.482-0.03q-4.072-0.03-6.184 0t-5.655 0.176a47.143 47.143 0 0 0-6.312 0.638l0.273-0.038a23.571 23.571 0 0 0-4.362 1.136l0.16-0.052a15.446 15.446 0 0 0-8.52 8.452l-0.038 0.102a22.543 22.543 0 0 0-1.065 4.062l-0.02 0.138a45 45 0 0 0-0.597 5.96l-0.004 0.08q-0.147 3.548-0.176 5.655t0 6.184 0.03 4.482-0.03 4.482 0 6.184 0.176 5.655c0.075 2.193 0.292 4.275 0.638 6.312l-0.038-0.273a23.571 23.571 0 0 0 1.136 4.362l-0.052-0.16a15.446 15.446 0 0 0 8.452 8.52l0.102 0.038c1.192 0.446 2.606 0.82 4.062 1.065l0.138 0.02c1.758 0.308 3.84 0.525 5.955 0.597l0.08 0.004q3.548 0.147 5.655 0.176t6.184 0l4.455-0.09 4.482 0.03q4.072 0.03 6.184 0t5.655-0.176a47.143 47.143 0 0 0 6.312-0.638l-0.273 0.038a23.571 23.571 0 0 0 4.362-1.136l-0.16 0.052a15.446 15.446 0 0 0 8.52-8.452l0.038-0.102c0.446-1.192 0.82-2.606 1.065-4.062l0.02-0.138c0.308-1.758 0.525-3.84 0.597-5.955l0.004-0.08q0.147-3.548 0.176-5.655t0-6.184-0.03-4.482 0.03-4.482 0-6.184-0.176-5.655a47.143 47.143 0 0 0-0.638-6.312l0.038 0.273a23.743 23.743 0 0 0-1.136-4.362l0.052 0.16a15.446 15.446 0 0 0-8.452-8.52l-0.102-0.038a22.543 22.543 0 0 0-4.062-1.065l-0.138-0.02a45 45 0 0 0-5.955-0.597l-0.08-0.004q-3.548-0.147-5.655-0.176t-6.184 0zM90 45q0 13.418-0.3 18.574a24.9 24.9 0 0 1-26.194 26.13l0.06 0.004q-5.157 0.3-18.574 0.3t-18.574-0.3A24.9 24.9 0 0 1 0.286 63.514l-0.004 0.06q-0.3-5.157-0.3-18.574t0.3-18.574A24.9 24.9 0 0 1 26.478 0.297l-0.058-0.005q5.157-0.3 18.574-0.3t18.574 0.3a24.9 24.9 0 0 1 26.13 26.194l0.004-0.06Q90 31.578 90 45" fill="currentColor"/></svg>
+        </a><div class="tooltip">Instagram</div>
+      </li>
+      <li class="icon-content">
+        <a href="#" aria-label="Twitter" data-social="twitter" class="link">
+          <svg version="1.1" viewBox="0 0 100 100"><path d="M53.564 38.947 87.066 0h-7.941L50.033 33.816 26.801 0H0l35.136 51.137L0 91.977h7.941l30.722-35.712 24.54 35.712H90L53.561 38.947zM42.686 51.588l-3.56-5.093L10.8 5.977h12.194l22.86 32.699 3.56 5.093 29.714 42.503H66.935L42.686 51.591z" fill="currentColor"/></svg>
+        </a><div class="tooltip">Twitter</div>
+      </li>
+      <li class="icon-content">
+        <a href="#" aria-label="Mail" data-social="mail" class="link">
+          <svg version="1.1" viewBox="0 0 100 100"><path d="M20 80A12 12 0 0 1 8 68v-40A12 12 0 0 1 20 16h56A12 12 0 0 1 88 28v40A12 12 0 0 1 76 80zm10.5-47.12a4 4 0 1 0-5.001 6.24l15.001 12.004a12 12 0 0 0 15.001 0l15.001-12a4 4 0 1 0-5.001-6.247l-15.001 12a4 4 0 0 1-5.001 0z" fill="currentColor"/></svg>
+        </a><div class="tooltip">Mail</div>
+      </li>
+    </ul>
+  </footer>
+
+  <div class="toast-msg" id="toast"></div>
+
+  <!-- Supabase CDN y Cliente -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../JS/supabase-client.js"></script>
+  <script src="../JS/shared.js"></script>
+  <script>
+  /* ══════════════════════════════════════════════
+  LECTOR.HTML — lógica completa
+  ══════════════════════════════════════════════ */
+
+  let story    = null;
+  let spread   = 0;        // 0 = primer spread de contenido (al abrir el libro)
+  let flipping = false;
+  let flipCd   = false;    // cooldown para evitar doble-clic durante animación
+  let isMobile = false;
+
+  /* ── Init ── */
+  (async () => {
+    loadState();
+    await loadStories();
+
+    // Obtener ID desde URL ?id=X  o  sessionStorage (desde ranking)
+    const params = new URLSearchParams(window.location.search);
+    let sid = parseInt(params.get('id'));
+    if (!sid) {
+      const stored = parseInt(sessionStorage.getItem('phgv_open_story'));
+      if (stored) { sid = stored; sessionStorage.removeItem('phgv_open_story'); }
+    }
+
+    story = stories.find(s => s.id === sid) || null;
+
+    if (!story) {
+      document.getElementById('vistaPortada').innerHTML = `
+        <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+          <div style="font-size:52px;margin-bottom:16px;">📚</div>
+          <p style="font-size:18px;font-weight:600;font-family:var(--font);">Cuento no encontrado.</p>
+          <a href="catalogo.html" class="portada-back-btn" style="margin:20px auto 0;display:inline-flex;">← Volver al catálogo</a>
+        </div>`;
+      return;
+    }
+
+    // Rellena la portada
+    document.getElementById('infoTitulo').textContent  = story.title;
+    document.getElementById('infoAutor').textContent   = story.author;
+    document.getElementById('infoDesc').textContent    = story.desc;
+    document.getElementById('infoColegio').textContent = story.school;
+    document.getElementById('tapaTitulo').textContent  = story.coverText || story.title;
+    document.getElementById('portadaTapa').style.background = story.cover;
+
+    // Rellena la barra del libro
+    document.getElementById('libroTitulo').textContent = story.title;
+    document.getElementById('libroMeta').textContent   = story.author + ' · ' + story.school;
+
+    checkMobile();
+    window.addEventListener('resize', () => {
+      const was = isMobile;
+      checkMobile();
+      if (was !== isMobile) renderSpread();
+    });
+  })();
+
+  function checkMobile() { isMobile = window.innerWidth <= 560; }
+
+  /* ── Abrir libro (clic en tapa) ── */
+  function abrirLibro() {
+    markAsRead(story.id);
+    spread = 0;
+    document.getElementById('vistaPortada').style.display = 'none';
+    const vl = document.getElementById('vistaLibro');
+    vl.classList.add('visible');
+    renderSpread();
+    // Scroll suave hacia el libro en móvil
+    vl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ── Volver a portada ── */
+  function cerrarLibro() {
+    document.getElementById('vistaLibro').classList.remove('visible');
+    document.getElementById('vistaPortada').style.display = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── Renderiza el spread actual ── */
+  function renderSpread() {
+    if (!story) return;
+
+    const spreads = story.content;
+    const total   = spreads.length;
+    const isFirst = spread === 0;
+    const isLast  = spread >= total - 1;
+    const cur     = spreads[spread];
+
+    const pgLeft  = document.getElementById('pgLeft');
+    const pgRight = document.getElementById('pgRight');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const pgLbl   = document.getElementById('pgLabel');
+
+    /* ─ Página IZQUIERDA ─ */
+    if (isFirst) {
+      // Primer spread: izquierda muestra el título del capítulo actual como portadilla
+      pgLeft.classList.remove('hide-m');
+      pgLeft.innerHTML = `
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;text-align:center;padding:10px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#b09070;font-family:var(--font);">Pequeñas Historias · Grandes Valores</div>
+          <div style="width:40px;height:2px;background:#d4a86a;border-radius:2px;margin:6px 0;"></div>
+          <div style="font-family:'Caveat',cursive;font-size:clamp(22px,4vw,34px);font-weight:700;color:#2e1a06;line-height:1.2;">${story.coverText || story.title}</div>
+          <div style="font-family:var(--font);font-size:13px;color:#8a6a40;font-weight:600;margin-top:4px;">${story.author}</div>
+          <div style="font-family:var(--font);font-size:11px;color:#b09070;">${story.school}</div>
+        </div>
+        <div class="pg-num">i</div>`;
+    } else {
+      if (isMobile) {
+        pgLeft.classList.add('hide-m');
+      } else {
+        pgLeft.classList.remove('hide-m');
+        const prev = spreads[spread - 1];
+        pgLeft.innerHTML = `
+          <div class="chapter-label">${prev.lt}</div>
+          <p class="book-text">${prev.r}</p>
+          <div class="pg-num">${spread * 2}</div>`;
+      }
+    }
+
+    /* ─ Página DERECHA ─ */
+    pgRight.innerHTML = `
+      <div class="chapter-label">${cur.lt}</div>
+      <p class="book-text">${cur.l}</p>
+      <div class="pg-num">${spread * 2 + 1}</div>`;
+
+    /* ─ Controles ─ */
+    if (btnPrev) btnPrev.disabled = isFirst;
+    if (btnNext) btnNext.disabled = isLast;
+    if (pgLbl)   pgLbl.textContent = `${spread + 1} / ${total}`;
+
+    renderDots(total);
+    renderVoteBtn(isLast);
+  }
+
+  /* ── Dots ── */
+  function renderDots(total) {
+    const el = document.getElementById('lectorDots');
+    if (!el) return;
+    el.innerHTML = Array.from({ length: total }, (_, i) => {
+      const c = i < spread ? 'l-dot done' : i === spread ? 'l-dot active' : 'l-dot';
+      return `<div class="${c}" title="Spread ${i+1}"></div>`;
+    }).join('');
+  }
+
+  /* ── Botón votar (solo al llegar al final) ── */
+  function renderVoteBtn(show) {
+    const z = document.getElementById('voteZone');
+    if (!z) return;
+    if (!show) { z.innerHTML = '<div class="vote-spacer"></div>'; return; }
+
+    const voted   = hasVoted(story.id);
+    const anyVote = hasVotedAny();
+    const cls   = voted ? 'btn-votar-lector voted' : anyVote ? 'btn-votar-lector locked' : 'btn-votar-lector';
+    const label = voted ? '★ Ya votaste por este cuento'
+                : anyVote ? '🔒 Voto bloqueado'
+                : '★ Votar por este cuento';
+    z.innerHTML = `<button class="${cls}" onclick="tryVote(${story.id})">${label}</button>`;
+  }
+
+  /* ── Navegación con cooldown ── */
+  function flipTo(dir, cb) {
+    const book = document.getElementById('elLibro');
+    if (!book || flipCd) return;
+    flipCd = true;
+    book.classList.add(dir === 'next' ? 'flip-next' : 'flip-prev');
+    setTimeout(() => {
+      book.classList.remove('flip-next', 'flip-prev');
+      cb();
+      renderSpread();
+      setTimeout(() => { flipCd = false; }, 60);
+    }, 450);
+  }
+
+  function nextSpread() {
+    if (!story || spread >= story.content.length - 1 || flipCd) return;
+    flipTo('next', () => spread++);
+  }
+
+  function prevSpread() {
+    if (spread <= 0 || flipCd) return;
+    flipTo('prev', () => spread--);
+  }
+
+  /* ── Teclado ── */
+  document.addEventListener('keydown', e => {
+    const lb = document.getElementById('vistaLibro');
+    if (!lb || !lb.classList.contains('visible')) return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSpread();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevSpread();
+  });
+
+  /* ── Swipe táctil ── */
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 48) { if (dx < 0) nextSpread(); else prevSpread(); }
+  }, { passive: true });
+
+  /* ── Hook castVote para refrescar botón ── */
+  const _cv = castVote;
+  castVote = function(id) {
+    _cv(id);
+    const isLast = story && spread >= story.content.length - 1;
+    renderVoteBtn(isLast);
+  };
+  </script>
+
+</body>
+</html>

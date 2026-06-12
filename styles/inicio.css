@@ -1,0 +1,224 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    background: radial-gradient(circle at center, rgba(255, 184, 77, 0.20), transparent 45%), linear-gradient(135deg, #121212, #262626, #1b1b1b);
+    font-family: 'Fredoka', sans-serif;
+    color: #f8f8ff;
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+}
+
+.top-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.top-header h1 span {
+    font-size: 16px;
+    color: #c96a2d;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    color: #ffb84d; 
+    font-size: 35px;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.menu-btn:hover {
+    transform: scale(1.1);
+    color: #f8f8ff;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    background-color: #262626;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.6);
+    border-radius: 8px;
+    z-index: 10;
+    border: 1px solid #c96a2d;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: #f8f8ff;
+    padding: 15px 20px;
+    text-decoration: none;
+    display: block;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.dropdown-content a:hover {
+    background-color: #c96a2d;
+}
+
+.dropdown.show .dropdown-content {
+    display: block;
+    animation: fadeInMenu 0.3s ease;
+}
+
+@keyframes fadeInMenu {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.carousel-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-grow: 1; 
+    padding: 0 20px;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 2px solid #c96a2d;
+    color: #c96a2d;
+    font-size: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 5;
+}
+
+.nav-btn:hover {
+    background: #c96a2d;
+    color: white;
+}
+
+.carousel-container {
+    width: 100%;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid #323232;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 4px 4px #323232;
+    display: grid;
+}
+
+.slide {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s;
+    padding: 30px;
+    gap: 30px;
+    align-items: center;
+    display: flex;
+}
+
+.slide.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+}
+
+.book-cover {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.story-info h2 {
+    font-size: 32px;
+    color: #ffb84d;
+    margin-bottom: 5px;
+}
+
+.story-info h3 {
+    font-size: 18px;
+    color: #ccc;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.story-info p {
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.news-section {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 30px 40px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 2px solid #323232;
+}
+
+.news-card {
+    display: flex;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    max-width: 450px;
+    border: 1px solid #323232;
+    transition: transform 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+}
+
+.news-card img {
+    width: 120px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.news-text h4 {
+    font-size: 16px;
+    color: #ffb84d;
+    margin-bottom: 5px;
+}
+
+.news-text p {
+    font-size: 13px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.news-text a {
+    color: #c96a2d;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.news-text a:hover {
+    text-decoration: underline;
+}
