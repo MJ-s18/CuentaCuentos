@@ -5,8 +5,8 @@
 
 // 1. REEMPLAZA ESTAS CREDENCIALES CUANDO VAYAS A PRODUCCIÓN
 // Las encuentras en tu panel de Supabase: Project Settings -> API
-const SUPABASE_URL = 'TU_SUPABASE_URL_AQUI';
-const SUPABASE_ANON_KEY = 'TU_SUPABASE_KEY_AQUI';
+const SUPABASE_URL = 'https://lzlikvheelblyqlrzwsc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_MphuvrQjfGM7VrueC4U8jA_U3yEni53';
 
 // 2. Lógica de fallback para desarrollo/pruebas locales:
 // Si no has cambiado las constantes de arriba, intentará leer del localStorage
