@@ -1,147 +1,795 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio - Pequeñas Historias</title>
-    <link rel="stylesheet" href="styles/inicio.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio — Pequeñas Historias Grandes Valores</title>
+  <link rel="stylesheet" href="styles/shared.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background:
+        radial-gradient(ellipse at 20% 60%, rgba(255, 122, 24, .12), transparent 55%),
+        radial-gradient(ellipse at 80% 20%, rgba(217, 35, 29, .08), transparent 45%),
+        linear-gradient(160deg, #161616, #1e1e1e, #181818);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: clamp(40px, 7vw, 88px) 24px 32px;
+      gap: 14px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 122, 24, .12);
+      border: 1px solid rgba(255, 122, 24, .3);
+      border-radius: 30px;
+      padding: 5px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--orange);
+      letter-spacing: .5px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 5.5vw, 58px);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--text-light);
+      max-width: 680px;
+    }
+
+    .hero h1 span {
+      color: var(--orange);
+    }
+
+    .hero p {
+      font-size: clamp(14px, 1.8vw, 17px);
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .btn-primary {
+      padding: 13px 30px;
+      border-radius: 30px;
+      border: none;
+      background: var(--orange);
+      color: #fff;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(255, 122, 24, .4);
+      transition: background .2s, transform .15s, box-shadow .2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--orange-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(255, 122, 24, .5);
+    }
+
+    .btn-secondary {
+      padding: 12px 26px;
+      border-radius: 30px;
+      border: 1.5px solid rgba(255, 122, 24, .35);
+      background: transparent;
+      color: var(--text-light);
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color .2s, background .2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--orange);
+      background: rgba(255, 122, 24, .08);
+    }
+
+    /* ── STATS ── */
+    .stats-strip {
+      display: flex;
+      justify-content: center;
+      gap: clamp(20px, 5vw, 60px);
+      flex-wrap: wrap;
+      padding: 0 24px 48px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: clamp(26px, 4vw, 42px);
+      font-weight: 700;
+      color: var(--orange);
+      line-height: 1;
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-wrap {
+      padding: 0 clamp(16px, 4vw, 56px) 52px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--orange);
+      margin-bottom: 18px;
+    }
+
+    /* ── CAROUSEL ── */
+    .carousel-outer {
+      position: relative;
+    }
+
+    .carousel-viewport {
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .slide {
+      min-width: 100%;
+      display: flex;
+      gap: clamp(16px, 4vw, 44px);
+      align-items: center;
+      padding: clamp(22px, 4vw, 44px);
+      background: var(--card-bg);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color .2s;
+    }
+
+    .slide:hover {
+      border-color: rgba(255, 122, 24, .4);
+    }
+
+    .slide-cover {
+      flex-shrink: 0;
+      width: clamp(90px, 16vw, 160px);
+      height: clamp(124px, 22vw, 220px);
+      border-radius: 4px 14px 14px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      text-align: center;
+      font-family: var(--font);
+      font-size: clamp(11px, 1.8vw, 16px);
+      font-weight: 700;
+      color: rgba(255, 255, 255, .92);
+      line-height: 1.2;
+      box-shadow: -6px 4px 18px rgba(0, 0, 0, .5), 4px 6px 14px rgba(0, 0, 0, .3);
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s;
+    }
+
+    .slide:hover .slide-cover {
+      transform: perspective(500px) rotateY(-6deg) scale(1.02);
+    }
+
+    .slide-cover::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 12px;
+      background: linear-gradient(to right, rgba(0, 0, 0, .3), transparent);
+    }
+
+    .slide-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slide-info h2 {
+      font-size: clamp(18px, 2.8vw, 28px);
+      font-weight: 700;
+      color: var(--text-light);
+    }
+
+    .slide-info .s-author {
+      font-size: 13px;
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    .slide-info p {
+      font-size: clamp(13px, 1.5vw, 15px);
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 500px;
+    }
+
+    .slide-info .s-school {
+      font-size: 12px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .slide-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      padding: 9px 20px;
+      border-radius: 20px;
+      background: var(--orange);
+      color: #fff;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      width: fit-content;
+      transition: background .2s;
+    }
+
+    .slide-cta:hover {
+      background: var(--orange-dark);
+    }
+
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+
+    .carousel-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .c-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      border: none;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+      padding: 0;
+    }
+
+    .c-dot.active {
+      background: var(--orange);
+      transform: scale(1.45);
+    }
+
+    .carousel-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .c-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-light);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s, border-color .2s;
+    }
+
+    .c-btn:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+
+    /* ── NEWS GRID ── */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+      gap: 18px;
+    }
+
+    .news-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .news-card:hover {
+      border-color: rgba(255, 122, 24, .4);
+      transform: translateY(-3px);
+    }
+
+    .news-card-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+    }
+
+    .news-card-img-placeholder {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #222, #1a1a1a);
+      font-size: 40px;
+    }
+
+    .news-card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .news-card-body h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-light);
+      line-height: 1.35;
+    }
+
+    .news-card-body p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .news-card-body a {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--orange);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      transition: gap .2s;
+    }
+
+    .news-card-body a:hover {
+      gap: 8px;
+    }
+
+    .news-skeleton {
+      background: linear-gradient(90deg, #222 25%, #2a2a2a 50%, #222 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+      height: 14px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0
+      }
+
+      100% {
+        background-position: -200% 0
+      }
+    }
+
+    /* ── SOCIAL UNIFRANZ SCZ ── */
+    .social-scz {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-light);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color .2s, background .2s, transform .15s;
+    }
+
+    .social-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .social-link.instagram:hover {
+      border-color: #e1306c;
+      background: rgba(225, 48, 108, .08);
+      color: #e1306c;
+    }
+
+    .social-link.facebook:hover {
+      border-color: #1877f2;
+      background: rgba(24, 119, 242, .08);
+      color: #1877f2;
+    }
+
+    .social-link.tiktok:hover {
+      border-color: #69c9d0;
+      background: rgba(105, 201, 208, .08);
+      color: #69c9d0;
+    }
+
+    .social-link svg {
+      flex-shrink: 0;
+    }
+
+    /* ── SETUP / QR BUTTON ── */
+    .btn-nav--setup {
+      border-color: rgba(255, 122, 24, .45);
+      color: var(--orange);
+    }
+
+    .btn-nav--setup:hover {
+      background: rgba(255, 122, 24, .15);
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    @media(max-width:560px) {
+      .slide {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+      }
+
+      .slide-info p {
+        max-width: 100%;
+      }
+
+      .slide-cta {
+        align-self: center;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <header class="top-header">
-        <h1>Pequeñas Historias <br><span>GRANDES VALORES</span></h1>
-        <div class="dropdown">
-            <button class="menu-btn" id="menu-toggle">&#9776;</button>
-            <div class="dropdown-content" id="dropdown-menu">
-                <a href="login.html">Iniciar Sesión</a>
-                <a href="./views/catalogo.html">Galería de Cuentos</a>
-                <a href="despliegue.html" style="background: rgba(255, 122, 24, 0.15); color: #ff7a18; font-weight: 600;">🛠️ Setup y QR</a>
-                <a href="#">Reglas del Concurso</a>
-            </div>
-        </div>
-    </header>
 
-    <main class="carousel-section">
-        <button id="prev-btn" class="nav-btn">❮</button>
-        <div class="carousel-container">
-            <div class="slide active">
-                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 1" class="book-cover">
-                <div class="story-info">
-                    <h2>El pequeño inventor</h2>
-                    <h3>Autor: Pedro</h3>
-                    <p>Un niño descubre cómo darle vida a sus juguetes viejos usando pequeños cables, luces y mucha imaginación, enseñando a su pueblo el valor del reciclaje y la creatividad.</p>
-                </div>
-            </div>
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 2" class="book-cover">
-                <div class="story-info">
-                    <h2>El misterio del bosque</h2>
-                    <h3>Autora: Desconocido</h3>
-                    <p>Dos hermanos se adentran en un bosque donde los árboles susurran secretos. Allí aprenderán que escuchar es el primer paso para resolver cualquier problema.</p>
-                </div>
-            </div>
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1453928582365-b6ad33cbcf64?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 3" class="book-cover">
-                <div class="story-info">
-                    <h2>El viaje del código</h2>
-                    <h3>Autora: Negron</h3>
-                    <p>Una historia sobre cómo un simple mensaje de ayuda viajó por todo el mundo a través de computadoras, conectando a personas que nunca se habían visto.</p>
-                </div>
-            </div>
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=80" alt="Portada Cuento 4" class="book-cover">
-                <div class="story-info">
-                    <h2>El reloj de arena</h2>
-                    <h3>Autor: Mariano</h3>
-                    <p>En un pequeño pueblo, un relojero encuentra un reloj de arena mágico que le permite pausar el tiempo. Pronto descubrirá que los mejores momentos son los que se comparten sin prisa.</p>
-                </div>
-            </div>
-        </div>
-        <button id="next-btn" class="nav-btn">❯</button>
-    </main>
+  <header class="site-header">
+    <a href="index.html" class="site-logo">Pequeñas Historias<br><span>GRANDES VALORES</span></a>
+    <nav class="site-nav">
+      <a href="views/catalogo.html" class="btn-nav">📚 Catálogo</a>
+      <a href="views/ranking.html" class="btn-nav">🏅 Ranking</a>
+      <a href="views/setup.html" class="btn-nav btn-nav--setup" title="Setup y código QR del concurso">⚙️ Setup / QR</a>
+      <div class="user-widget" id="user-widget">
+        <a href="login.html" class="btn-nav">Iniciar Sesión</a>
+      </div>
+    </nav>
+  </header>
 
-    <footer class="news-section">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">✦ Concurso de Cuentos 2026</div>
+    <h1>Donde las pequeñas historias<br>crean <span>grandes valores</span></h1>
+    <p>Lee los cuentos de los participantes, descubrí tus favoritos y votá por el que más te inspire.</p>
+    <div class="hero-ctas">
+      <a href="views/catalogo.html" class="btn-primary">📚 Ver todos los cuentos</a>
+      <a href="views/ranking.html" class="btn-secondary">🏅 Ver Ranking</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-num" id="statCuentos">—</div>
+      <div class="stat-lbl">Cuentos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statVotos">—</div>
+      <div class="stat-lbl">Votos emitidos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statColegios">—</div>
+      <div class="stat-lbl">Colegios</div>
+    </div>
+  </div>
+
+  <!-- CAROUSEL — cuentos reales -->
+  <div class="section-wrap">
+    <div class="section-label">✦ Cuentos destacados</div>
+    <div class="carousel-outer">
+      <div class="carousel-viewport">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="slide" style="justify-content:center;min-height:200px;">
+            <div style="color:var(--text-muted);font-size:15px;">Cargando cuentos…</div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-controls">
+        <div class="carousel-dots" id="carouselDots"></div>
+        <div class="carousel-btns">
+          <button class="c-btn" id="cPrev">&#8249;</button>
+          <button class="c-btn" id="cNext">&#8250;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTICIAS UNIFRANZ -->
+  <div class="section-wrap">
+    <div class="section-label">✦ Noticias Unifranz</div>
+    <div class="news-grid" id="newsGrid">
+      <!-- Skeletons mientras carga -->
+      <div class="news-card" style="min-height:280px;">
+        <div class="news-card-img-placeholder"></div>
+        <div class="news-card-body">
+          <div class="news-skeleton" style="width:80%"></div>
+          <div class="news-skeleton" style="width:60%;height:12px;margin-top:6px;"></div>
+          <div class="news-skeleton" style="width:90%;height:12px;margin-top:4px;"></div>
+        </div>
+      </div>
+      <div class="news-card" style="min-height:280px;">
+        <div class="news-card-img-placeholder"></div>
+        <div class="news-card-body">
+          <div class="news-skeleton" style="width:75%"></div>
+          <div class="news-skeleton" style="width:55%;height:12px;margin-top:6px;"></div>
+          <div class="news-skeleton" style="width:85%;height:12px;margin-top:4px;"></div>
+        </div>
+      </div>
+      <div class="news-card" style="min-height:280px;">
+        <div class="news-card-img-placeholder"></div>
+        <div class="news-card-body">
+          <div class="news-skeleton" style="width:70%"></div>
+          <div class="news-skeleton" style="width:65%;height:12px;margin-top:6px;"></div>
+          <div class="news-skeleton" style="width:88%;height:12px;margin-top:4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REDES SOCIALES UNIFRANZ SCZ -->
+  <div class="section-wrap">
+    <div class="section-label">✦ Seguinos en redes — Unifranz Santa Cruz</div>
+    <div class="social-scz">
+
+      <a href="https://www.instagram.com/unifranz.scz/" target="_blank" rel="noopener" class="social-link instagram">
+        <svg width="22" height="22" viewBox="0 0 100 100">
+          <path
+            d="M60 45a15 15 0 1 0-4.395 10.61A14.4 14.4 0 0 0 60 45.225l-0.004-0.237zm8.1 0a23.006 23.006 0 1 1-6.738-16.347 22.2 22.2 0 0 1 6.742 15.96l-0.004 0.41v-0.02zm6.327-24.022v0.008a5.4 5.4 0 1 1-1.582-3.818 5.177 5.177 0 0 1 1.556 3.705v0.11zm-29.4-12.9-4.482-0.03q-4.072-0.03-6.184 0t-5.655 0.176a47.143 47.143 0 0 0-6.312 0.638l0.273-0.038a23.571 23.571 0 0 0-4.362 1.136l0.16-0.052a15.446 15.446 0 0 0-8.52 8.452l-0.038 0.102a22.543 22.543 0 0 0-1.065 4.062l-0.02 0.138a45 45 0 0 0-0.597 5.96l-0.004 0.08q-0.147 3.548-0.176 5.655t0 6.184 0.03 4.482-0.03 4.482 0 6.184 0.176 5.655c0.075 2.193 0.292 4.275 0.638 6.312l-0.038-0.273a23.571 23.571 0 0 0 1.136 4.362l-0.052-0.16a15.446 15.446 0 0 0 8.452 8.52l0.102 0.038c1.192 0.446 2.606 0.82 4.062 1.065l0.138 0.02c1.758 0.308 3.84 0.525 5.955 0.597l0.08 0.004q3.548 0.147 5.655 0.176t6.184 0l4.455-0.09 4.482 0.03q4.072 0.03 6.184 0t5.655-0.176a47.143 47.143 0 0 0 6.312-0.638l-0.273 0.038a23.571 23.571 0 0 0 4.362-1.136l-0.16 0.052a15.446 15.446 0 0 0 8.52-8.452l0.038-0.102c0.446-1.192 0.82-2.606 1.065-4.062l0.02-0.138c0.308-1.758 0.525-3.84 0.597-5.955l0.004-0.08q0.147-3.548 0.176-5.655t0-6.184-0.03-4.482 0.03-4.482 0-6.184-0.176-5.655a47.143 47.143 0 0 0-0.638-6.312l0.038 0.273a23.743 23.743 0 0 0-1.136-4.362l0.052 0.16a15.446 15.446 0 0 0-8.452-8.52l-0.102-0.038a22.543 22.543 0 0 0-4.062-1.065l-0.138-0.02a45 45 0 0 0-5.955-0.597l-0.08-0.004q-3.548-0.147-5.655-0.176t-6.184 0zM90 45q0 13.418-0.3 18.574a24.9 24.9 0 0 1-26.194 26.13l0.06 0.004q-5.157 0.3-18.574 0.3t-18.574-0.3A24.9 24.9 0 0 1 0.286 63.514l-0.004 0.06q-0.3-5.157-0.3-18.574t0.3-18.574A24.9 24.9 0 0 1 26.478 0.297l-0.058-0.005q5.157-0.3 18.574-0.3t18.574 0.3a24.9 24.9 0 0 1 26.13 26.194l0.004-0.06Q90 31.578 90 45"
+            fill="currentColor" />
+        </svg>
+        @unifranz.scz
+      </a>
+
+      <a href="https://www.facebook.com/UnifranzSczOficial" target="_blank" rel="noopener" class="social-link facebook">
+        <svg width="22" height="22" viewBox="0 0 30 30">
+          <path
+            d="M29.059 15.085C29.058 7.322 22.764 1.028 15 1.028S0.941 7.323 0.941 15.087c0 6.989 5.1 12.787 11.781 13.875l0.081 0.011V19.15H9.232v-4.065h3.57v-3.096a4.962 4.962 0 0 1 5.329-5.469l-0.017-0.001c1.124 0.016 2.212 0.115 3.273 0.292l-0.126-0.018v3.459h-1.774a2.033 2.033 0 0 0-2.291 2.204l-0.001-0.008v2.636h3.899l-0.623 4.065h-3.276v9.823c6.762-1.101 11.862-6.899 11.863-13.888"
+            fill="currentColor" />
+        </svg>
+        UnifranzSczOficial
+      </a>
+
+      <a href="https://www.tiktok.com/@unifranz.scz" target="_blank" rel="noopener" class="social-link tiktok">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
+        </svg>
+        @unifranz.scz
+      </a>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div>
+      <div class="footer-logo-box">UNIFRANZ<span>Internacionalízate</span></div>
+      <div style="font-size:11px;color:#555;margin-top:4px;">INNOVACIÓN EN EDUCACIÓN</div>
+    </div>
+    <p class="footer-copy">© 2026 UNIFRANZ · Av. Bush, 2do Anillo · Santa Cruz</p>
+    <ul class="footer-socials">
+      <li class="icon-content" data-social="instagram">
+        <a href="https://www.instagram.com/unifranz.scz/" target="_blank" class="link" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 100 100">
+            <path
+              d="M60 45a15 15 0 1 0-4.395 10.61A14.4 14.4 0 0 0 60 45.225l-0.004-0.237zm8.1 0a23.006 23.006 0 1 1-6.738-16.347 22.2 22.2 0 0 1 6.742 15.96l-0.004 0.41v-0.02zm6.327-24.022v0.008a5.4 5.4 0 1 1-1.582-3.818 5.177 5.177 0 0 1 1.556 3.705v0.11zm-29.4-12.9-4.482-0.03q-4.072-0.03-6.184 0t-5.655 0.176a47.143 47.143 0 0 0-6.312 0.638l0.273-0.038a23.571 23.571 0 0 0-4.362 1.136l0.16-0.052a15.446 15.446 0 0 0-8.52 8.452l-0.038 0.102a22.543 22.543 0 0 0-1.065 4.062l-0.02 0.138a45 45 0 0 0-0.597 5.96l-0.004 0.08q-0.147 3.548-0.176 5.655t0 6.184 0.03 4.482-0.03 4.482 0 6.184 0.176 5.655c0.075 2.193 0.292 4.275 0.638 6.312l-0.038-0.273a23.571 23.571 0 0 0 1.136 4.362l-0.052-0.16a15.446 15.446 0 0 0 8.452 8.52l0.102 0.038c1.192 0.446 2.606 0.82 4.062 1.065l0.138 0.02c1.758 0.308 3.84 0.525 5.955 0.597l0.08 0.004q3.548 0.147 5.655 0.176t6.184 0l4.455-0.09 4.482 0.03q4.072 0.03 6.184 0t5.655-0.176a47.143 47.143 0 0 0 6.312-0.638l-0.273 0.038a23.571 23.571 0 0 0 4.362-1.136l-0.16 0.052a15.446 15.446 0 0 0 8.52-8.452l0.038-0.102c0.446-1.192 0.82-2.606 1.065-4.062l0.02-0.138c0.308-1.758 0.525-3.84 0.597-5.955l0.004-0.08q0.147-3.548 0.176-5.655t0-6.184-0.03-4.482 0.03-4.482 0-6.184-0.176-5.655a47.143 47.143 0 0 0-0.638-6.312l0.038 0.273a23.743 23.743 0 0 0-1.136-4.362l0.052 0.16a15.446 15.446 0 0 0-8.452-8.52l-0.102-0.038a22.543 22.543 0 0 0-4.062-1.065l-0.138-0.02a45 45 0 0 0-5.955-0.597l-0.08-0.004q-3.548-0.147-5.655-0.176t-6.184 0zM90 45q0 13.418-0.3 18.574a24.9 24.9 0 0 1-26.194 26.13l0.06 0.004q-5.157 0.3-18.574 0.3t-18.574-0.3A24.9 24.9 0 0 1 0.286 63.514l-0.004 0.06q-0.3-5.157-0.3-18.574t0.3-18.574A24.9 24.9 0 0 1 26.478 0.297l-0.058-0.005q5.157-0.3 18.574-0.3t18.574 0.3a24.9 24.9 0 0 1 26.13 26.194l0.004-0.06Q90 31.578 90 45"
+              fill="currentColor" />
+          </svg>
+        </a>
+        <div class="tooltip">Instagram SCZ</div>
+      </li>
+      <li class="icon-content" data-social="facebook">
+        <a href="https://www.facebook.com/UnifranzSczOficial" target="_blank" class="link" aria-label="Facebook">
+          <svg width="18" height="18" viewBox="0 0 30 30">
+            <path
+              d="M29.059 15.085C29.058 7.322 22.764 1.028 15 1.028S0.941 7.323 0.941 15.087c0 6.989 5.1 12.787 11.781 13.875l0.081 0.011V19.15H9.232v-4.065h3.57v-3.096a4.962 4.962 0 0 1 5.329-5.469l-0.017-0.001c1.124 0.016 2.212 0.115 3.273 0.292l-0.126-0.018v3.459h-1.774a2.033 2.033 0 0 0-2.291 2.204l-0.001-0.008v2.636h3.899l-0.623 4.065h-3.276v9.823c6.762-1.101 11.862-6.899 11.863-13.888"
+              fill="currentColor" />
+          </svg>
+        </a>
+        <div class="tooltip">Facebook SCZ</div>
+      </li>
+      <li class="icon-content" data-social="tiktok" style="--hover-color:#69c9d0">
+        <a href="https://www.tiktok.com/@unifranz.scz" target="_blank" class="link" aria-label="TikTok">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
+          </svg>
+        </a>
+        <div class="tooltip">TikTok SCZ</div>
+      </li>
+    </ul>
+  </footer>
+
+  <div class="toast-msg" id="toast"></div>
+
+  <script src="./JS/shared.js"></script>
+  <script>
+    (async () => {
+      // Sesión
+      const session = await checkSession();
+      renderUserWidget(session);
+
+      // Cuentos
+      await loadStories();
+
+      // Stats
+      const totalVotos = stories.reduce((s, c) => s + (c.votes || 0), 0);
+      const colegios = new Set(stories.map(s => s.school).filter(Boolean)).size;
+      animateNum('statCuentos', stories.length);
+      animateNum('statVotos', totalVotos);
+      animateNum('statColegios', colegios);
+
+      // Carousel — top por votos
+      const top = [...stories].sort((a, b) => (b.votes || 0) - (a.votes || 0)).slice(0, Math.min(stories.length, 6));
+      buildCarousel(top);
+
+      // Noticias
+      loadNoticias();
+    })();
+
+    // Animación de números
+    function animateNum(id, target) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let cur = 0;
+      const step = Math.ceil(target / 40);
+      const t = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = cur;
+        if (cur >= target) clearInterval(t);
+      }, 30);
+    }
+
+    // ── CAROUSEL ──
+    let carouselIdx = 0, carouselData = [], autoTimer = null;
+
+    function buildCarousel(cuentos) {
+      carouselData = cuentos;
+      const track = document.getElementById('carouselTrack');
+      const dotsEl = document.getElementById('carouselDots');
+
+      track.innerHTML = cuentos.map(s => `
+      <div class="slide" onclick="window.location.href='views/lector.html?id=${s.id}'" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter')window.location.href='views/lector.html?id=${s.id}'">
+        <div class="slide-cover" style="background:${s.cover}">${s.coverText || s.title}</div>
+        <div class="slide-info">
+          <h2>${s.title}</h2>
+          <div class="s-author">✍ ${s.author}</div>
+          <p>${s.desc}</p>
+          <div class="s-school">📍 ${s.school || ''}</div>
+          <a class="slide-cta" href="views/lector.html?id=${s.id}">Leer cuento →</a>
+        </div>
+      </div>`).join('');
+
+      dotsEl.innerHTML = cuentos.map((_, i) =>
+        `<button class="c-dot${i === 0 ? ' active' : ''}" data-i="${i}" aria-label="Cuento ${i + 1}"></button>`).join('');
+
+      document.getElementById('cPrev').onclick = () => { carouselGo(carouselIdx - 1); resetAuto(); };
+      document.getElementById('cNext').onclick = () => { carouselGo(carouselIdx + 1); resetAuto(); };
+      dotsEl.addEventListener('click', e => {
+        const i = e.target.dataset.i;
+        if (i !== undefined) { carouselGo(+i); resetAuto(); }
+      });
+
+      startAuto();
+    }
+
+    function carouselGo(i) {
+      carouselIdx = (i + carouselData.length) % carouselData.length;
+      document.getElementById('carouselTrack').style.transform = `translateX(-${carouselIdx * 100}%)`;
+      document.querySelectorAll('.c-dot').forEach((d, j) => d.classList.toggle('active', j === carouselIdx));
+    }
+
+    function startAuto() {
+      autoTimer = setInterval(() => carouselGo(carouselIdx + 1), 5000);
+      const vp = document.querySelector('.carousel-viewport');
+      vp.addEventListener('mouseenter', () => clearInterval(autoTimer));
+      vp.addEventListener('mouseleave', startAuto);
+    }
+    function resetAuto() { clearInterval(autoTimer); startAuto(); }
+
+    // ── NOTICIAS ──
+    async function loadNoticias() {
+      const grid = document.getElementById('newsGrid');
+      try {
+        const res = await fetch('/api/noticias');
+        const data = await res.json();
+        if (!data.ok || !data.data?.length) throw new Error();
+
+        grid.innerHTML = data.data.map(n => `
         <div class="news-card">
-            <img src="https://unifranz.edu.bo/wp-content/uploads/2024/05/cannes-lions-unifranz.jpg" alt="Unifranz Cannes Lions">
-            <div class="news-text">
-                <h4>Unifranz y Cannes Lions: Oportunidades Globales</h4>
-                <p>La alianza que abre puertas para el talento creativo boliviano a nivel internacional.</p>
-                <a href="https://unifranz.edu.bo/blog/unifranz-y-cannes-lions-la-alianza-que-abre-oportunidades-globales-para-el-talento-creativo-boliviano/" target="_blank">Leer más</a>
-            </div>
+          ${n.imagen
+            ? `<img class="news-card-img" src="${n.imagen}" alt="${n.titulo}" loading="lazy" onerror="this.parentNode.querySelector('.news-card-img-placeholder') && (this.style.display='none')">`
+            : `<div class="news-card-img-placeholder">📰</div>`}
+          <div class="news-card-body">
+            <h4>${n.titulo}</h4>
+            ${n.desc ? `<p>${n.desc}</p>` : '<p style="color:#555">Noticia de UNIFRANZ</p>'}
+            <a href="${n.link}" target="_blank" rel="noopener">Leer más →</a>
+          </div>
+        </div>`).join('');
+      } catch (_) {
+        grid.innerHTML = `
+        <div class="news-card">
+          <img class="news-card-img" src="https://unifranz.edu.bo/wp-content/uploads/2024/05/cannes-lions-unifranz.jpg" alt="Unifranz" loading="lazy">
+          <div class="news-card-body">
+            <h4>Unifranz y Cannes Lions: Oportunidades Globales</h4>
+            <p>La alianza que abre puertas para el talento creativo boliviano a nivel internacional.</p>
+            <a href="https://unifranz.edu.bo/blog/unifranz-y-cannes-lions-la-alianza-que-abre-oportunidades-globales-para-el-talento-creativo-boliviano/" target="_blank">Leer más →</a>
+          </div>
         </div>
         <div class="news-card">
-            <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=300&q=80" alt="Ingeniería Unifranz">
-            <div class="news-text">
-                <h4>Innovación en Ingeniería de Sistemas</h4>
-                <p>Estudiantes de la sede Santa Cruz desarrollan nuevas plataformas web interactivas para la comunidad.</p>
-                <a href="#" target="_blank">Leer más</a>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const menuBtn = document.getElementById("menu-toggle");
-            const dropdown = document.querySelector(".dropdown");
-
-            menuBtn.addEventListener("click", (e) => {
-                e.stopPropagation(); 
-                dropdown.classList.toggle("show");
-            });
-
-            window.addEventListener("click", () => {
-                if (dropdown.classList.contains("show")) {
-                    dropdown.classList.remove("show");
-                }
-            });
-
-            const slides = document.querySelectorAll('.slide');
-            const btnPrev = document.getElementById('prev-btn');
-            const btnNext = document.getElementById('next-btn');
-            
-            let currentSlide = 0;
-            let autoPlayInterval;
-
-            function showSlide(index) {
-                slides.forEach((slide, i) => {
-                    slide.classList.remove('active');
-                    if (i === index) {
-                        slide.classList.add('active');
-                    }
-                });
-            }
-
-            function nextSlide() {
-                currentSlide = (currentSlide + 1) % slides.length;
-                showSlide(currentSlide);
-            }
-
-            function prevSlide() {
-                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-                showSlide(currentSlide);
-            }
-
-            function resetInterval() {
-                clearInterval(autoPlayInterval);
-                startAutoPlay();
-            }
-
-            btnNext.addEventListener('click', () => {
-                nextSlide();
-                resetInterval();
-            });
-
-            btnPrev.addEventListener('click', () => {
-                prevSlide();
-                resetInterval();
-            });
-
-            function startAutoPlay() {
-                autoPlayInterval = setInterval(nextSlide, 20000);
-            }
-
-            startAutoPlay();
-        });
-    </script>
+          <div class="news-card-img-placeholder">📰</div>
+          <div class="news-card-body">
+            <h4>Más noticias de UNIFRANZ</h4>
+            <p>Visitá el blog oficial para conocer todas las novedades de la universidad.</p>
+            <a href="https://unifranz.edu.bo/blog/" target="_blank">Ver blog →</a>
+          </div>
+        </div>`;
+      }
+    }
+  </script>
 </body>
+
 </html>
