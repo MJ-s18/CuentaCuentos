@@ -1,0 +1,345 @@
+/* =============================================
+   shared.css — Estilos compartidos globales
+   Variables CSS, reset, header, footer, toast, etc.
+   ============================================= */
+
+/* ── RESET ──────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── VARIABLES GLOBALES ─────────────────────── */
+:root {
+  --orange:       #ff7a18;
+  --orange-dark:  #c96a2d;
+  --orange-light: #ffb347;
+  --red:          #d9231d;
+  --dark-bg:      #1a1a1a;
+  --card-bg:      #2a2a2a;
+  --border:       #3a3a3a;
+  --text-light:   #f5f5f5;
+  --text-muted:   #aaaaaa;
+  --font:         'Fredoka', sans-serif;
+}
+
+/* ── BASE ───────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--text-light);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+li { list-style: none; }
+
+/* ── SITE HEADER ────────────────────────────── */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px clamp(20px, 4vw, 56px);
+  position: relative;
+  z-index: 100;
+}
+
+.site-logo {
+  font-family: var(--font);
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 700;
+  color: var(--text-light);
+  text-decoration: none;
+  line-height: 1.15;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.site-logo span {
+  display: block;
+  color: var(--orange);
+  font-size: 0.72em;
+  letter-spacing: 3px;
+  font-weight: 700;
+}
+
+.site-logo:hover {
+  color: var(--orange);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-nav {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-decoration: none;
+  padding: 9px 18px;
+  border-radius: 24px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-nav:hover {
+  border-color: var(--orange);
+  background: rgba(255, 122, 24, 0.08);
+  color: var(--orange);
+}
+
+/* ── USER WIDGET (header) ───────────────────── */
+.user-widget {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--orange);
+}
+
+.user-initials {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.user-name {
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-light);
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: var(--font);
+  transition: background 0.2s;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-login-header {
+  color: var(--text-light);
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 9px 18px;
+  border-radius: 24px;
+  border: 1.5px solid var(--border);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.btn-login-header:hover {
+  border-color: var(--orange);
+  background: rgba(255, 122, 24, 0.08);
+  color: var(--orange);
+}
+
+/* ── SITE FOOTER ────────────────────────────── */
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 24px clamp(20px, 4vw, 56px);
+  margin-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.footer-logo-box {
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a3a7a;
+  line-height: 1.2;
+}
+
+.footer-logo-box span {
+  display: block;
+  font-size: 10px;
+  color: #555;
+  font-weight: 600;
+}
+
+.footer-copy {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Footer social icons */
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-socials .icon-content {
+  position: relative;
+  font-weight: bolder;
+}
+
+.footer-socials .icon-content .tooltip {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  color: #000;
+  padding: 6px 10px;
+  border-radius: 5px;
+  opacity: 0;
+  visibility: hidden;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.footer-socials .icon-content:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -50px;
+}
+
+.footer-socials .icon-content .link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  transition: all 0.3s ease-in-out;
+}
+
+.footer-socials .icon-content .link:hover {
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
+}
+
+.footer-socials .icon-content .link svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* Colores hover por red social */
+.footer-socials .icon-content[data-social="instagram"] .link:hover { color: #E1306C; }
+.footer-socials .icon-content[data-social="facebook"] .link:hover  { color: #1877F2; }
+.footer-socials .icon-content[data-social="tiktok"] .link:hover    { color: #69c9d0; }
+
+/* ── TOAST GLOBAL ───────────────────────────── */
+.toast-msg {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: #1a1a1a;
+  border: 1.5px solid var(--orange);
+  color: var(--text-light);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 26px;
+  border-radius: 30px;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 99999;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.toast-msg.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast--success { border-color: #2e7d32; }
+.toast--error   { border-color: var(--red); }
+.toast--warning { border-color: #f9a825; }
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 640px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .site-nav {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .btn-nav {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    padding-bottom: 40px;
+  }
+
+  .footer-socials {
+    justify-content: center;
+  }
+
+  .footer-socials .icon-content .tooltip {
+    top: 45px;
+  }
+  .footer-socials .icon-content:hover .tooltip,
+  .footer-socials .icon-content:active .tooltip {
+    top: 55px;
+  }
+}
