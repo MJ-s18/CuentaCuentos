@@ -300,21 +300,29 @@ async function loadStories() {
   const res = await fetch(STORIES_PATH);
   stories   = await res.json();
 
+  // Los votos de cuentos.json son solo un placeholder.
+  // Siempre se reemplazan por el conteo real de la tabla "votos" en Supabase
+  // (incluso si es 0), para no mostrar votos falsos.
+  stories.forEach(s => { s.votes = 0; });
+
   try {
-    const { data: votosData } = await window.supabaseClient
+    const { data: votosData, error } = await window.supabaseClient
       .from('votos')
       .select('cuento_id');
 
-    if (votosData) {
-      const conteo = {};
-      votosData.forEach(v => {
-        conteo[v.cuento_id] = (conteo[v.cuento_id] || 0) + 1;
-      });
-      stories.forEach(s => {
-        if (conteo[s.id] !== undefined) s.votes = conteo[s.id];
-      });
-    }
-  } catch (_) {}
+    if (error) throw error;
+
+    const conteo = {};
+    (votosData || []).forEach(v => {
+      conteo[v.cuento_id] = (conteo[v.cuento_id] || 0) + 1;
+    });
+
+    stories.forEach(s => {
+      s.votes = conteo[s.id] || 0;
+    });
+  } catch (err) {
+    console.error('⚠️ No se pudieron cargar los votos desde Supabase:', err);
+  }
 }
 
 // ── Toast ─────────────────────────────────────
