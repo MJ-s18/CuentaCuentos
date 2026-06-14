@@ -203,31 +203,38 @@ function _guardSetupBtn() {
 // ── Verificar sesión con Supabase ─────────────
 async function checkSession() {
   try {
-    const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+    const sb = window.supabaseClient;
 
-    if (error || !session) {
-      return { ok: true, logueado: false };
-    }
+    // Esperar a que Supabase procese el hash (#access_token=...)
+    // que Google devuelve después del OAuth redirect
+    await new Promise(resolve => {
+      const { data: { subscription } } = sb.auth.onAuthStateChange((event, session) => {
+        subscription.unsubscribe();
+        resolve(session);
+      });
+      // Timeout de seguridad por si no hay evento
+      setTimeout(resolve, 2000);
+    });
+
+    const { data: { session } } = await sb.auth.getSession();
+
+    if (!session) return { ok: true, logueado: false };
 
     const user    = session.user;
     usuarioId     = user.id;
     usuarioNombre = user.user_metadata?.full_name || user.email.split('@')[0];
     usuarioAvatar = user.user_metadata?.avatar_url || null;
 
-    const { data: votoData } = await window.supabaseClient
+    const { data: votoData } = await sb
       .from('votos')
       .select('cuento_id')
       .eq('usuario_id', usuarioId)
       .maybeSingle();
 
-    if (votoData) {
-      votedIds = [votoData.cuento_id];
-      saveState();
-    }
+    if (votoData) { votedIds = [votoData.cuento_id]; saveState(); }
 
     return {
-      ok:          true,
-      logueado:    true,
+      ok: true, logueado: true,
       usuario_id:  usuarioId,
       nombre:      usuarioNombre,
       avatar_url:  usuarioAvatar,
