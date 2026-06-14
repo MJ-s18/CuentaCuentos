@@ -37,6 +37,9 @@ function saveState() {
   } catch (_) {}
 }
 
+// Asegurarnos de que el estado inicial se cargue de inmediato
+loadState();
+
 function hasVoted(id)   { return votedIds.includes(id); }
 function hasVotedAny()  { return votedIds.length > 0; }
 function hasRead(id)    { return readIds.includes(id); }
@@ -301,8 +304,6 @@ async function loadStories() {
   stories   = await res.json();
 
   // Los votos de cuentos.json son solo un placeholder.
-  // Siempre se reemplazan por el conteo real de la tabla "votos" en Supabase
-  // (incluso si es 0), para no mostrar votos falsos.
   stories.forEach(s => { s.votes = 0; });
 
   try {
@@ -392,7 +393,7 @@ async function castVote(id) {
     if (error) {
       if (error.code === '23505') {
         showToast('⛔ Ya registraste un voto anteriormente', 'error');
-        votedIds.push(id);
+        if (!votedIds.includes(id)) votedIds.push(id);
         saveState();
       } else {
         showToast(`⛔ Error: ${error.message}`, 'error');
@@ -401,7 +402,7 @@ async function castVote(id) {
     }
 
     s.votes = (s.votes || 0) + 1;
-    votedIds.push(id);
+    if (!votedIds.includes(id)) votedIds.push(id);
     saveState();
     showToast(`★ ¡Voto registrado para "${s.title}"!`, 'success');
 
@@ -496,3 +497,44 @@ function attachHoverEffects(gridId) {
     card.addEventListener('mouseleave', () => resetCard(card));
   });
 }
+
+// ── PROGRAMACIÓN DE FUNCIONES EN TIEMPO REAL REQUERIDAS POR RANKING.HTML ──
+let votosRealtimeChannel = null;
+
+window.subscribeToVotes = function(callbackActualizarRanking) {
+  const sb = window.supabaseClient;
+  if (!sb) return;
+
+  // Si ya hay un canal activo, lo removemos antes para no duplicar escuchas
+  if (votosRealtimeChannel) {
+    sb.removeChannel(votosRealtimeChannel);
+  }
+
+  // Creamos el canal en vivo vigilando la tabla 'votos'
+  votosRealtimeChannel = sb
+    .channel('cambios-votos-ranking')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'votos' },
+      async (payload) => {
+        console.log('⚡ ¡Cambio detectado en la tabla votos! Recalculando posiciones...', payload);
+        
+        // Volvemos a consultar a la base de datos para refrescar el conteo local de votos
+        await loadStories();
+        
+        // Ejecutamos la función de pintar en pantalla que tiene ranking.html
+        if (typeof callbackActualizarRanking === 'function') {
+          callbackActualizarRanking();
+        }
+      }
+    )
+    .subscribe();
+};
+
+window.unsubscribeFromVotes = function() {
+  const sb = window.supabaseClient;
+  if (sb && votosRealtimeChannel) {
+    sb.removeChannel(votosRealtimeChannel);
+    votosRealtimeChannel = null;
+  }
+};
