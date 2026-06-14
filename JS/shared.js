@@ -204,19 +204,20 @@ function _guardSetupBtn() {
 async function checkSession() {
   try {
     const sb = window.supabaseClient;
+    if (!sb) return { ok: true, logueado: false };
 
-    // Esperar a que Supabase procese el hash (#access_token=...)
-    // que Google devuelve después del OAuth redirect
-    await new Promise(resolve => {
-      const { data: { subscription } } = sb.auth.onAuthStateChange((event, session) => {
-        subscription.unsubscribe();
-        resolve(session);
-      });
-      // Timeout de seguridad por si no hay evento
-      setTimeout(resolve, 2000);
-    });
+    // Intentar obtener sesión directamente
+    let { data: { session } } = await sb.auth.getSession();
 
-    const { data: { session } } = await sb.auth.getSession();
+    // Si no hay sesión pero hay hash en la URL (#access_token=...)
+    // Supabase necesita un momento para procesarlo
+    if (!session && window.location.hash.includes('access_token')) {
+      await new Promise(r => setTimeout(r, 1500));
+      const result = await sb.auth.getSession();
+      session = result.data.session;
+      // Limpiar el hash feo de la URL sin recargar
+      history.replaceState(null, '', window.location.pathname);
+    }
 
     if (!session) return { ok: true, logueado: false };
 
@@ -240,7 +241,8 @@ async function checkSession() {
       avatar_url:  usuarioAvatar,
       voto_cuento: votoData?.cuento_id ?? null,
     };
-  } catch (_) {
+  } catch (e) {
+    console.error('checkSession error:', e);
     return { ok: true, logueado: false };
   }
 }
