@@ -7,8 +7,7 @@
 // =========================================================================
 
 const SUPABASE_URL      = 'https://lzlikvheelblyqlrzwsc.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_MphuvrQjfGM7VrueC4U8jA_U3yEni53';
-// Ejemplo real: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs...'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6bGlrdmhlZWxibHlxbHJ6d3NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNTg2NDEsImV4cCI6MjA5NjgzNDY0MX0.xLNQmwQMPzyr9SBjWJhVmnGrxdUR6_fMTvPmWUKUGrY';
 
 window.supabaseClient = null;
 
