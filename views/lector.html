@@ -758,7 +758,7 @@
   <script src="../JS/supabase-client.js"></script>
   <script src="../JS/shared.js"></script>
   <script>
-  /* ══════════════════════════════════════════════
+    /* ══════════════════════════════════════════════
   LECTOR.HTML — lógica completa
   ══════════════════════════════════════════════ */
 
@@ -932,38 +932,19 @@
 
   function nextSpread() {
     if (!story || spread >= story.content.length - 1 || flipCd) return;
-    flipTo('next', () => spread++);
+    flipTo('next', () => {
+      spread++;
+    });
   }
 
   function prevSpread() {
-    if (spread <= 0 || flipCd) return;
-    flipTo('prev', () => spread--);
+    if (!story || spread <= 0 || flipCd) return;
+    flipTo('prev', () => {
+      spread--;
+    });
   }
-
-  /* ── Teclado ── */
-  document.addEventListener('keydown', e => {
-    const lb = document.getElementById('vistaLibro');
-    if (!lb || !lb.classList.contains('visible')) return;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSpread();
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prevSpread();
-  });
-
-  /* ── Swipe táctil ── */
-  let tx = 0;
-  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
-  document.addEventListener('touchend',   e => {
-    const dx = e.changedTouches[0].clientX - tx;
-    if (Math.abs(dx) > 48) { if (dx < 0) nextSpread(); else prevSpread(); }
-  }, { passive: true });
-
-  /* ── Hook castVote para refrescar botón ── */
-  const _cv = castVote;
-  castVote = function(id) {
-    _cv(id);
-    const isLast = story && spread >= story.content.length - 1;
-    renderVoteBtn(isLast);
-  };
   </script>
+
 
 </body>
 </html>
