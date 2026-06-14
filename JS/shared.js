@@ -1,6 +1,7 @@
 // =============================================
 //  shared.js — Pequeñas Historias Grandes Valores
 //  Estado global y utilidades — MIGRADO A SUPABASE
+//  v4 — Sistema admin local integrado
 // =============================================
 
 'use strict';
@@ -41,6 +42,164 @@ function hasVotedAny()  { return votedIds.length > 0; }
 function hasRead(id)    { return readIds.includes(id); }
 function markAsRead(id) { if (!readIds.includes(id)) { readIds.push(id); saveState(); } }
 
+// =============================================
+//  SISTEMA ADMIN LOCAL
+//  Credenciales hardcodeadas, sin Supabase
+// =============================================
+const _ADMIN_USER = 'admi';
+const _ADMIN_PASS = 'MNWPD';
+const _ADMIN_KEY  = 'cc_admin';
+
+function isAdmin() {
+  return sessionStorage.getItem(_ADMIN_KEY) === 'true';
+}
+
+function _adminLogin(user, pass) {
+  if (user === _ADMIN_USER && pass === _ADMIN_PASS) {
+    sessionStorage.setItem(_ADMIN_KEY, 'true');
+    return true;
+  }
+  return false;
+}
+
+function _adminLogout() {
+  sessionStorage.removeItem(_ADMIN_KEY);
+}
+
+// Aplica visibilidad a elementos con data-admin
+function applyAdminUI() {
+  const admin = isAdmin();
+  document.querySelectorAll('[data-admin]').forEach(el => {
+    el.style.display = admin ? '' : 'none';
+  });
+}
+
+// Modal de login admin
+function openAdminModal() {
+  if (document.getElementById('admin-modal')) return;
+
+  const style = document.createElement('style');
+  style.id = 'admin-modal-style';
+  style.textContent = `
+    #admin-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;
+      align-items:center;justify-content:center;z-index:99999;
+      backdrop-filter:blur(5px);animation:amFI .2s ease}
+    @keyframes amFI{from{opacity:0}to{opacity:1}}
+    .am-box{background:#1e1e1e;border:1.5px solid #ff7a18;border-radius:18px;
+      padding:36px 32px 28px;width:min(370px,92vw);position:relative;
+      box-shadow:0 24px 60px rgba(0,0,0,.6);animation:amSU .25s ease}
+    @keyframes amSU{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .am-close{position:absolute;top:13px;right:15px;background:none;border:none;
+      color:#888;font-size:19px;cursor:pointer}
+    .am-close:hover{color:#fff}
+    .am-icon{font-size:38px;text-align:center;margin-bottom:8px}
+    .am-title{font-family:'Fredoka',sans-serif;font-size:22px;font-weight:700;
+      color:#f5f5f5;text-align:center;margin-bottom:4px}
+    .am-sub{font-size:13px;color:#888;text-align:center;margin-bottom:22px}
+    .am-field{margin-bottom:14px}
+    .am-field label{display:block;font-size:11px;font-weight:700;color:#aaa;
+      margin-bottom:6px;letter-spacing:.6px;text-transform:uppercase}
+    .am-field input{width:100%;padding:11px 14px;background:#2a2a2a;
+      border:1.5px solid #3a3a3a;border-radius:10px;color:#f5f5f5;
+      font-family:'Fredoka',sans-serif;font-size:15px;outline:none;transition:border-color .2s}
+    .am-field input:focus{border-color:#ff7a18}
+    .am-error{font-size:13px;color:#f55;text-align:center;
+      margin-bottom:10px;font-weight:600;display:none}
+    .am-btn{width:100%;padding:13px;background:#ff7a18;border:none;
+      border-radius:12px;color:#fff;font-family:'Fredoka',sans-serif;
+      font-size:16px;font-weight:700;cursor:pointer;transition:background .2s}
+    .am-btn:hover{background:#e06810}
+    .am-btn:active{transform:scale(.98)}
+  `;
+  document.head.appendChild(style);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'admin-modal';
+  overlay.innerHTML = `
+    <div class="am-box">
+      <button class="am-close" id="am-close">✕</button>
+      <div class="am-icon">🔐</div>
+      <h2 class="am-title">Acceso Administrador</h2>
+      <p class="am-sub">Solo personal autorizado</p>
+      <div class="am-field">
+        <label>Usuario</label>
+        <input id="am-user" type="text" placeholder="Usuario" autocomplete="off">
+      </div>
+      <div class="am-field">
+        <label>Contraseña</label>
+        <input id="am-pass" type="password" placeholder="••••••">
+      </div>
+      <p class="am-error" id="am-error">❌ Usuario o contraseña incorrectos</p>
+      <button class="am-btn" id="am-submit">Entrar</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  setTimeout(() => document.getElementById('am-user')?.focus(), 80);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) _closeAdminModal(); });
+  document.getElementById('am-close').addEventListener('click', _closeAdminModal);
+  document.getElementById('am-submit').addEventListener('click', _handleAdminLogin);
+  document.getElementById('am-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') _handleAdminLogin();
+  });
+}
+
+function _closeAdminModal() {
+  document.getElementById('admin-modal')?.remove();
+  document.getElementById('admin-modal-style')?.remove();
+}
+
+function _handleAdminLogin() {
+  const user = document.getElementById('am-user')?.value.trim();
+  const pass = document.getElementById('am-pass')?.value.trim();
+  const err  = document.getElementById('am-error');
+  if (_adminLogin(user, pass)) {
+    _closeAdminModal();
+    showToast('✅ Bienvenido, Admin', 'success');
+    setTimeout(() => location.reload(), 700);
+  } else {
+    if (err) err.style.display = 'block';
+    document.getElementById('am-pass').value = '';
+    document.getElementById('am-pass').focus();
+  }
+}
+
+// Botón 🔑 en la nav
+function _renderAdminToggle() {
+  const nav = document.querySelector('.site-nav');
+  if (!nav || nav.querySelector('.btn-admin-toggle')) return;
+
+  const btn = document.createElement('button');
+  btn.className   = 'btn-nav btn-admin-toggle';
+  btn.title       = isAdmin() ? 'Cerrar sesión admin' : 'Admin';
+  btn.textContent = isAdmin() ? '🔓 Admin' : '🔑';
+  if (isAdmin()) btn.style.cssText = 'border-color:rgba(255,122,24,.5);color:var(--orange);';
+
+  btn.addEventListener('click', () => {
+    if (isAdmin()) {
+      _adminLogout();
+      showToast('Sesión admin cerrada', 'warning');
+      setTimeout(() => location.reload(), 700);
+    } else {
+      openAdminModal();
+    }
+  });
+
+  const widget = nav.querySelector('.user-widget');
+  widget ? nav.insertBefore(btn, widget) : nav.appendChild(btn);
+}
+
+// Ocultar botón Setup/QR si no es admin
+function _guardSetupBtn() {
+  const btn = document.querySelector('.btn-nav--setup');
+  if (!btn) return;
+  btn.style.display = isAdmin() ? '' : 'none';
+}
+
+// =============================================
+//  FIN SISTEMA ADMIN
+// =============================================
+
 // ── Verificar sesión con Supabase ─────────────
 async function checkSession() {
   try {
@@ -55,7 +214,6 @@ async function checkSession() {
     usuarioNombre = user.user_metadata?.full_name || user.email.split('@')[0];
     usuarioAvatar = user.user_metadata?.avatar_url || null;
 
-    // Sincronizar voto desde Supabase
     const { data: votoData } = await window.supabaseClient
       .from('votos')
       .select('cuento_id')
@@ -68,11 +226,11 @@ async function checkSession() {
     }
 
     return {
-      ok:         true,
-      logueado:   true,
-      usuario_id: usuarioId,
-      nombre:     usuarioNombre,
-      avatar_url: usuarioAvatar,
+      ok:          true,
+      logueado:    true,
+      usuario_id:  usuarioId,
+      nombre:      usuarioNombre,
+      avatar_url:  usuarioAvatar,
       voto_cuento: votoData?.cuento_id ?? null,
     };
   } catch (_) {
@@ -106,6 +264,11 @@ function renderUserWidget(sessionData) {
   } else {
     widget.innerHTML = `<a href="${LOGIN_URL}" class="btn-login-header">Iniciar Sesión</a>`;
   }
+
+  // Admin UI — siempre después de renderizar el header
+  _renderAdminToggle();
+  _guardSetupBtn();
+  applyAdminUI();
 }
 
 // ── Logout ────────────────────────────────────
@@ -128,14 +291,12 @@ async function loadStories() {
   const res = await fetch(STORIES_PATH);
   stories   = await res.json();
 
-  // Cargar votos reales desde Supabase
   try {
     const { data: votosData } = await window.supabaseClient
       .from('votos')
       .select('cuento_id');
 
     if (votosData) {
-      // Contar votos por cuento
       const conteo = {};
       votosData.forEach(v => {
         conteo[v.cuento_id] = (conteo[v.cuento_id] || 0) + 1;
@@ -166,10 +327,7 @@ function tryVote(id) {
     setTimeout(() => window.location.href = LOGIN_URL, 1500);
     return;
   }
-  if (hasVoted(id)) {
-    showToast('Ya votaste por esta historia', 'info');
-    return;
-  }
+  if (hasVoted(id)) { showToast('Ya votaste por esta historia', 'info'); return; }
   if (hasVotedAny()) {
     const v = stories.find(s => s.id === votedIds[0]);
     showToast(`⛔ Ya votaste por "${v ? v.title : '…'}". Solo 1 voto por usuario.`, 'error');
@@ -215,7 +373,6 @@ async function castVote(id) {
       .insert({ usuario_id: usuarioId, cuento_id: id });
 
     if (error) {
-      // Código 23505 = violación unique (ya votó)
       if (error.code === '23505') {
         showToast('⛔ Ya registraste un voto anteriormente', 'error');
         votedIds.push(id);
@@ -236,8 +393,8 @@ async function castVote(id) {
     return;
   }
 
-  if (typeof renderGallery  === 'function') renderGallery();
-  if (typeof renderRanking  === 'function') renderRanking();
+  if (typeof renderGallery === 'function') renderGallery();
+  if (typeof renderRanking === 'function') renderRanking();
 }
 
 // ── Ir al lector ──────────────────────────────
@@ -284,10 +441,10 @@ function activateCard(card) {
   card.style.background  = 'linear-gradient(135deg,#c96a2d,#ff7a18,#d9231d)';
   card.style.borderColor = '#ff9944';
   card.style.transition  = 'all .35s ease';
-  const titulo = card.querySelector('.card-titulo');
-  const desc   = card.querySelector('.card-desc');
-  const btns   = card.querySelectorAll('.btn-votar:not(.voted):not(.locked), .btn-leer');
-  const portada= card.querySelector('.card-portada-color');
+  const titulo  = card.querySelector('.card-titulo');
+  const desc    = card.querySelector('.card-desc');
+  const btns    = card.querySelectorAll('.btn-votar:not(.voted):not(.locked), .btn-leer');
+  const portada = card.querySelector('.card-portada-color');
   if (titulo)  titulo.style.color = '#fff';
   if (desc)    desc.style.background = 'rgba(0,0,0,.28)';
   if (portada) portada.style.boxShadow = '4px 4px 0 rgba(0,0,0,.3)';
@@ -300,11 +457,11 @@ function resetCard(card) {
   card.style.background  = 'var(--card-bg)';
   card.style.borderColor = 'var(--border)';
   card.style.transition  = 'all .35s ease';
-  const titulo = card.querySelector('.card-titulo');
-  const desc   = card.querySelector('.card-desc');
-  const portada= card.querySelector('.card-portada-color');
-  const btnV   = card.querySelector('.btn-votar:not(.voted):not(.locked)');
-  const btnL   = card.querySelector('.btn-leer');
+  const titulo  = card.querySelector('.card-titulo');
+  const desc    = card.querySelector('.card-desc');
+  const portada = card.querySelector('.card-portada-color');
+  const btnV    = card.querySelector('.btn-votar:not(.voted):not(.locked)');
+  const btnL    = card.querySelector('.btn-leer');
   if (titulo)  titulo.style.color = 'var(--text-light)';
   if (desc)    desc.style.background = 'var(--red)';
   if (portada) portada.style.boxShadow = '4px 4px 0 var(--orange-dark)';
