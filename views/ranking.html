@@ -16,19 +16,14 @@
       Pequeñas Historias <span>Grandes Valores</span>
     </h1>
     <nav style="display:flex; gap:10px; align-items:center;">
-      <a href="catalogo.html" class="btn-nav-page">📚 Catálogo</a>
-      <div class="user-widget" id="user-widget"></div>
+      <a href="catalogo.html" class="btn-nav-page">⌂ Catálogo</a>
+      <button class="btn-avatar" aria-label="Perfil"></button>
     </nav>
   </header>
 
   <!-- ═══════════ MAIN ═══════════ -->
   <main>
-    <h2 class="ranking-title">
-      🏅 Ranking de <span>Cuentos</span>
-      <span class="live-badge" id="liveBadge" title="Actualización en tiempo real">
-        <span class="live-dot"></span> EN VIVO
-      </span>
-    </h2>
+    <h2 class="ranking-title">🏅 Ranking de <span>Cuentos</span></h2>
     <div class="podio"        id="podio"></div>
     <div class="ranking-list" id="rankingList"></div>
   </main>
@@ -101,30 +96,11 @@
   <script>
     (async () => {
       loadState();
-
       const session = await checkSession();
       renderUserWidget(session);
-
       await loadStories();
       renderRanking();
-
-      // ── Tiempo real: cuando alguien vota, esto se ejecuta solo ──
-      subscribeToVotes(() => {
-        renderRanking();
-        pulseLiveBadge();
-      });
     })();
-
-    // Limpiar la suscripción al salir de la página
-    window.addEventListener('beforeunload', unsubscribeFromVotes);
-
-    // ── Pequeña animación cuando llega un voto nuevo ──
-    function pulseLiveBadge() {
-      const badge = document.getElementById('liveBadge');
-      if (!badge) return;
-      badge.classList.add('pulse');
-      setTimeout(() => badge.classList.remove('pulse'), 900);
-    }
 
     function renderRanking() {
       const sorted = [...stories].sort((a, b) => b.votes - a.votes);
