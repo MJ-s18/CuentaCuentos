@@ -352,10 +352,39 @@ function tryVote(id) {
     return;
   }
   if (!hasRead(id)) {
-    showToast('📖 Primero debes leer el cuento completo', 'warning');
+    showReadFirstModal(id);
     return;
   }
   askVoteConfirmation(id);
+}
+
+function showReadFirstModal(id) {
+  let overlay = document.getElementById('readFirstOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'readFirstOverlay';
+    overlay.className = 'vote-overlay';
+    overlay.innerHTML = `
+      <div class="vote-modal" style="text-align: center;">
+        <h3 style="margin-bottom: 15px; color: #fff;">📖 ¡Alto ahí!</h3>
+        <p style="color: #ddd; margin-bottom: 15px; font-size: 15px;">Para poder votar por este cuento, <strong>primero debes leerlo completo</strong>.</p>
+        <div class="vote-modal-warn" style="margin-bottom: 20px;">
+          Queremos asegurarnos de que elijas tu historia favorita después de disfrutarla de principio a fin.
+        </div>
+        <div class="vote-modal-actions" style="justify-content: center; gap: 12px;">
+          <button class="btn-si" onclick="document.getElementById('readFirstOverlay').classList.remove('show'); goToStory(${id})">Ir a leerlo</button>
+          <button class="btn-no" onclick="document.getElementById('readFirstOverlay').classList.remove('show')">Cancelar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  } else {
+    const readBtn = overlay.querySelector('.btn-si');
+    if (readBtn) {
+      readBtn.setAttribute('onclick', `document.getElementById('readFirstOverlay').classList.remove('show'); goToStory(${id})`);
+    }
+  }
+  setTimeout(() => overlay.classList.add('show'), 10);
 }
 
 function askVoteConfirmation(id) {
