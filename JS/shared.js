@@ -413,6 +413,11 @@ async function castVote(id) {
 
   if (typeof renderGallery === 'function') renderGallery();
   if (typeof renderRanking === 'function') renderRanking();
+  
+  // Redirigir al catálogo después de votar
+  setTimeout(() => {
+    window.location.href = IS_IN_VIEWS ? 'catalogo.html' : 'views/catalogo.html';
+  }, 1500);
 }
 
 // ── Ir al lector ──────────────────────────────

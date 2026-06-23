@@ -192,6 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── GOOGLE OAuth ──────────────────────────────────────────────────────
   // Redirige al endpoint PHP que inicia el flujo OAuth real con Google
   if (googleBtn) {
+    // Al volver a la página (cancelar o volver atrás) restaurar el botón
+    window.addEventListener('pageshow', () => {
+      googleBtn.disabled    = false;
+      googleBtn.textContent = 'Continuar con Google';
+    });
+
     googleBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       googleBtn.disabled    = true;
