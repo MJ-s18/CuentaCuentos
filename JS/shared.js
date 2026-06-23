@@ -341,8 +341,7 @@ let pendingVoteId = null;
 
 function tryVote(id) {
   if (!usuarioId) {
-    showToast('⚠️ Debes iniciar sesión para votar', 'warning');
-    setTimeout(() => window.location.href = LOGIN_URL, 1500);
+    showLoginFirstModal();
     return;
   }
   if (hasVoted(id)) { showToast('Ya votaste por esta historia', 'info'); return; }
@@ -383,6 +382,30 @@ function showReadFirstModal(id) {
     if (readBtn) {
       readBtn.setAttribute('onclick', `document.getElementById('readFirstOverlay').classList.remove('show'); goToStory(${id})`);
     }
+  }
+  setTimeout(() => overlay.classList.add('show'), 10);
+}
+
+function showLoginFirstModal() {
+  let overlay = document.getElementById('loginFirstOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'loginFirstOverlay';
+    overlay.className = 'vote-overlay';
+    overlay.innerHTML = `
+      <div class="vote-modal" style="text-align: center;">
+        <h3 style="margin-bottom: 15px; color: #fff;">🔒 Inicia sesión</h3>
+        <p style="color: #ddd; margin-bottom: 15px; font-size: 15px;">Para poder votar por los cuentos, debes <strong>iniciar sesión o crear una cuenta</strong>.</p>
+        <div class="vote-modal-warn" style="margin-bottom: 20px;">
+          Tu voto es muy importante y queremos asegurarnos de que el proceso sea justo para todos los participantes.
+        </div>
+        <div class="vote-modal-actions" style="justify-content: center; gap: 12px;">
+          <button class="btn-si" onclick="window.location.href = '${LOGIN_URL}'">Iniciar Sesión</button>
+          <button class="btn-no" onclick="document.getElementById('loginFirstOverlay').classList.remove('show')">Cancelar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
   }
   setTimeout(() => overlay.classList.add('show'), 10);
 }
