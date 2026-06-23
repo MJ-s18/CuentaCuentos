@@ -47,18 +47,28 @@ function markAsRead(id) { if (!readIds.includes(id)) { readIds.push(id); saveSta
 
 // =============================================
 //  SISTEMA ADMIN LOCAL
-//  Credenciales hardcodeadas, sin Supabase
+//  Credenciales ofuscadas con SHA-256
 // =============================================
-const _ADMIN_USER = 'admi';
-const _ADMIN_PASS = 'MNWPD';
+const _ADMIN_USER_HASH = '3ef411623fc41f2528234c7522c7d52eacc96bdbb18f3194ddf8b511a53d43a1';
+const _ADMIN_PASS_HASH = '4625ca7e95860fda5e52ff8cdf30308e60a117ef6c83121fc8fb2aabf20cb5b2';
 const _ADMIN_KEY  = 'cc_admin';
 
 function isAdmin() {
   return sessionStorage.getItem(_ADMIN_KEY) === 'true';
 }
 
-function _adminLogin(user, pass) {
-  if (user === _ADMIN_USER && pass === _ADMIN_PASS) {
+async function hashText(text) {
+  const msgBuffer = new TextEncoder().encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function _adminLogin(user, pass) {
+  const userHash = await hashText(user);
+  const passHash = await hashText(pass);
+  
+  if (userHash === _ADMIN_USER_HASH && passHash === _ADMIN_PASS_HASH) {
     sessionStorage.setItem(_ADMIN_KEY, 'true');
     return true;
   }
@@ -152,11 +162,13 @@ function _closeAdminModal() {
   document.getElementById('admin-modal-style')?.remove();
 }
 
-function _handleAdminLogin() {
+async function _handleAdminLogin() {
   const user = document.getElementById('am-user')?.value.trim();
   const pass = document.getElementById('am-pass')?.value.trim();
   const err  = document.getElementById('am-error');
-  if (_adminLogin(user, pass)) {
+  
+  const isValid = await _adminLogin(user, pass);
+  if (isValid) {
     _closeAdminModal();
     showToast('✅ Bienvenido, Admin', 'success');
     setTimeout(() => location.reload(), 700);
