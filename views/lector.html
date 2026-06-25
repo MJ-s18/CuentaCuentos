@@ -1034,7 +1034,7 @@
         const text = isLeftText ? cur.l : cur.r;
         
         pgRight.innerHTML = `
-          <div class="chapter-label">${cur.lt}</div>
+          <div class="chapter-label">${story.title}</div>
           <p class="book-text">${text}</p>
           <div class="pg-num">${pageIndex + 1}</div>`;
       }
@@ -1049,12 +1049,12 @@
         const cur = spreads[contentIndex];
         
         pgLeft.innerHTML = `
-          <div class="chapter-label">${cur.lt}</div>
+          <div class="chapter-label">${story.title}</div>
           <p class="book-text">${cur.l}</p>
           <div class="pg-num">${contentIndex * 2 + 1}</div>`;
           
         pgRight.innerHTML = `
-          <div class="chapter-label">${cur.lt}</div>
+          <div class="chapter-label">${story.title}</div>
           <p class="book-text">${cur.r}</p>
           <div class="pg-num">${contentIndex * 2 + 2}</div>`;
       }
