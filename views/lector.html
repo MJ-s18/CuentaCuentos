@@ -372,6 +372,15 @@
 
   .book-container { flex: 1; min-width: 0; }
 
+  /* ── BARRA NAV MÓVIL (fija en la parte inferior) ── */
+  .mobile-nav-bar {
+    display: none; /* oculta siempre por defecto */
+  }
+  /* Se muestra solo en móvil Y cuando el libro está abierto */
+  .mobile-nav-bar.active {
+    display: flex;
+  }
+
   /* EL LIBRO */
   .book {
     display: flex;
@@ -566,38 +575,152 @@
      RESPONSIVE
   ══════════════════════════════════════════════ */
   @media (max-width: 860px) {
-    .body-lector header { padding: 16px 20px; }
-    .body-lector main   { padding: 12px 16px 30px; }
+    .body-lector header { padding: 14px 16px; gap: 8px; flex-wrap: wrap; }
+    .body-lector main   { padding: 10px 12px 30px; }
 
-    #vistaPortada { gap: 30px; flex-direction: column; align-items: center; }
+    #vistaPortada { gap: 24px; flex-direction: column; align-items: center; }
     .portada-info { max-width: 100%; text-align: center; align-items: center; }
     .portada-tapa { width: 200px; height: 280px; }
     .tapa-titulo  { font-size: 20px; }
 
-    .btn-pagina { width: 42px; height: 42px; font-size: 22px; }
+    .btn-pagina { width: 44px; height: 44px; font-size: 22px; }
     .book-page  { padding: 22px 18px 38px; }
     .book-text  { font-size: 14px; }
     .book       { min-height: 300px; }
     .lector-bottom { padding: 0 10px; }
+
+    .lector-titulo-bar h2 { font-size: 14px; }
+    .lector-titulo-bar p  { font-size: 11px; }
+    .btn-cerrar-libro { font-size: 12px; padding: 7px 12px; }
   }
 
-  @media (max-width: 560px) {
-    /* Libro apilado: una página a la vez */
-    .book { flex-direction: column; border-radius: 10px; min-height: auto; }
-    .book-spine {
-      width: 100%; height: 16px;
-      background: linear-gradient(to bottom, #a07840, #d4a86a, #e8c99a, #a07840);
+  /* ═══════════════════════════════════════════
+     MÓVIL: una sola página + nav bar inferior
+  ═══════════════════════════════════════════ */
+  @media (max-width: 640px) {
+    /* Ocultar flechas laterales del desktop */
+    .book-zone > .btn-pagina { display: none; }
+
+    /* El libro ocupa toda la zona sin flechas a los lados */
+    .book-zone { gap: 0; }
+    .book-container { width: 100%; }
+
+    /* Libro: una sola columna */
+    .book {
+      flex-direction: column;
+      border-radius: 14px;
+      min-height: auto;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.6),
+        0 2px 8px rgba(0,0,0,0.3);
     }
-    /* Ocultar página izquierda en spreads de contenido (no portada) */
+    .book::before { display: none; }
+
+    /* Ocultar lomo y página izquierda */
+    .book-spine { display: none; }
     .book-page.hide-m { display: none; }
 
-    .book::before { display: none; }
-    .btn-pagina { width: 38px; height: 38px; font-size: 20px; }
-    .book-text  { font-size: 14px; line-height: 1.75; }
+    /* La página visible ocupa el ancho completo */
+    .book-page {
+      padding: 28px 22px 48px;
+      border-radius: 14px;
+      min-height: 360px;
+    }
+    .book-page-right { background: #fff9f2; border-radius: 14px; }
+    .book-text { font-size: 15px; line-height: 1.85; }
+
+    /* Topbar más compacta */
+    .lector-topbar {
+      gap: 8px;
+    }
+    .lector-titulo-bar { order: -1; width: 100%; text-align: center; }
+    .lector-titulo-bar h2 { font-size: 13px; }
+    .lector-titulo-bar p  { font-size: 11px; display: none; }
+    .btn-cerrar-libro { font-size: 12px; padding: 6px 12px; white-space: nowrap; }
+
+    /* Ocultar barra inferior desktop (dots y vote se mueven a la nav bar) */
+    .lector-bottom { display: none; }
+
+    /* Mostrar barra de navegación fija inferior */
+    .mobile-nav-bar.active {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: linear-gradient(to top, #1a1a1a 80%, transparent);
+      padding: 12px 16px 20px;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .mobile-nav-bar .m-btn-nav {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: var(--orange);
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(255,122,24,0.55);
+      transition: background 0.2s, transform 0.15s;
+      line-height: 1;
+    }
+    .mobile-nav-bar .m-btn-nav:hover:not(:disabled),
+    .mobile-nav-bar .m-btn-nav:active:not(:disabled) {
+      background: var(--orange-dark);
+      transform: scale(0.95);
+    }
+    .mobile-nav-bar .m-btn-nav:disabled {
+      background: #2c2c2c;
+      color: #4a4a4a;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .mobile-nav-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mobile-nav-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .mobile-nav-dots .l-dot {
+      width: 9px;
+      height: 9px;
+    }
+    .mobile-nav-pg {
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .mobile-nav-vote {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Dar espacio al contenido para que no tape la nav bar */
+    .body-lector main {
+      padding-bottom: 100px;
+    }
 
     .portada-tapa { width: 180px; height: 250px; }
-    .lector-bottom { flex-direction: column; align-items: center; gap: 10px; }
-    #voteZone { justify-content: center; }
+    #vistaPortada { padding-bottom: 20px; }
 
     .body-lector footer {
       padding: 20px 16px 42px;
@@ -612,8 +735,9 @@
   }
 
   @media (max-width: 380px) {
-    .btn-pagina { width: 32px; height: 32px; font-size: 18px; }
+    .mobile-nav-bar .m-btn-nav { width: 46px; height: 46px; font-size: 24px; }
     .portada-tapa { width: 155px; height: 215px; }
+    .book-page { padding: 22px 16px 44px; }
   }
   </style>
 </head>
@@ -632,7 +756,7 @@
   <!-- ═══════ HEADER ═══════ -->
   <header>
     <h1 class="title-catalogo">Pequeñas Historias <span>Grandes Valores</span></h1>
-    <nav style="display:flex; gap:10px; align-items:center;">
+    <nav class="header-nav">
       <a href="ranking.html"  class="btn-nav-page">🏅 Ranking</a>
       <a href="catalogo.html" class="btn-nav-page">📚 Catálogo</a>
       <a href="../index.html" class="btn-nav-page">🏠 Inicio</a>
@@ -695,7 +819,7 @@
         <button class="btn-pagina" id="btnNext" onclick="nextSpread()" title="Siguiente">&#8250;</button>
       </div>
 
-      <!-- Dots + Votar -->
+      <!-- Dots + Votar (desktop) -->
       <div class="lector-bottom">
         <div style="display:flex;align-items:center;gap:12px;">
           <div class="lector-dots" id="lectorDots"></div>
@@ -704,6 +828,17 @@
         <div id="voteZone"><div class="vote-spacer"></div></div>
       </div>
 
+    </div>
+
+    <!-- ── BARRA NAV MÓVIL (fija inferior, siempre en DOM) ── -->
+    <div class="mobile-nav-bar" id="mobileNavBar">
+      <button class="m-btn-nav" id="mBtnPrev" onclick="prevSpread()" title="Anterior">&#8249;</button>
+      <div class="mobile-nav-center">
+        <div class="mobile-nav-dots" id="mLectorDots"></div>
+        <div class="mobile-nav-pg" id="mPgLabel"></div>
+        <div class="mobile-nav-vote" id="mVoteZone"></div>
+      </div>
+      <button class="m-btn-nav" id="mBtnNext" onclick="nextSpread()" title="Siguiente">&#8250;</button>
     </div>
 
   </main>
@@ -828,7 +963,7 @@
     });
   })();
 
-  function checkMobile() { isMobile = window.innerWidth <= 560; }
+  function checkMobile() { isMobile = window.innerWidth <= 640; }
 
   /* ── Abrir libro (clic en tapa) ── */
   function abrirLibro() {
@@ -837,6 +972,9 @@
     document.getElementById('vistaPortada').style.display = 'none';
     const vl = document.getElementById('vistaLibro');
     vl.classList.add('visible');
+    // Activar barra móvil (el CSS @media decide si se ve o no según el ancho)
+    const mBar = document.getElementById('mobileNavBar');
+    if (mBar) mBar.classList.add('active');
     renderSpread();
     // Scroll suave hacia el libro en móvil
     vl.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -846,6 +984,9 @@
   function cerrarLibro() {
     document.getElementById('vistaLibro').classList.remove('visible');
     document.getElementById('vistaPortada').style.display = '';
+    // Desactivar barra móvil
+    const mBar = document.getElementById('mobileNavBar');
+    if (mBar) mBar.classList.remove('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -897,10 +1038,18 @@
       <p class="book-text">${cur.l}</p>
       <div class="pg-num">${spread * 2 + 1}</div>`;
 
-    /* ─ Controles ─ */
+    /* ─ Controles desktop ─ */
     if (btnPrev) btnPrev.disabled = isFirst;
     if (btnNext) btnNext.disabled = isLast;
     if (pgLbl)   pgLbl.textContent = `${spread + 1} / ${total}`;
+
+    /* ─ Controles móvil ─ */
+    const mBtnPrev = document.getElementById('mBtnPrev');
+    const mBtnNext = document.getElementById('mBtnNext');
+    const mPgLbl   = document.getElementById('mPgLabel');
+    if (mBtnPrev) mBtnPrev.disabled = isFirst;
+    if (mBtnNext) mBtnNext.disabled = isLast;
+    if (mPgLbl)   mPgLbl.textContent = `${spread + 1} / ${total}`;
 
     renderDots(total);
     renderVoteBtn(isLast);
@@ -908,27 +1057,37 @@
 
   /* ── Dots ── */
   function renderDots(total) {
-    const el = document.getElementById('lectorDots');
-    if (!el) return;
-    el.innerHTML = Array.from({ length: total }, (_, i) => {
+    const dotsHtml = Array.from({ length: total }, (_, i) => {
       const c = i < spread ? 'l-dot done' : i === spread ? 'l-dot active' : 'l-dot';
-      return `<div class="${c}" title="Spread ${i+1}"></div>`;
+      return `<div class="${c}" title="Página ${i+1}"></div>`;
     }).join('');
+    // Desktop
+    const el = document.getElementById('lectorDots');
+    if (el) el.innerHTML = dotsHtml;
+    // Móvil
+    const mel = document.getElementById('mLectorDots');
+    if (mel) mel.innerHTML = dotsHtml;
   }
 
   /* ── Botón votar (solo al llegar al final) ── */
   function renderVoteBtn(show) {
-    const z = document.getElementById('voteZone');
-    if (!z) return;
-    if (!show) { z.innerHTML = '<div class="vote-spacer"></div>'; return; }
-
-    const voted   = hasVoted(story.id);
+    const voted   = story ? hasVoted(story.id) : false;
     const anyVote = hasVotedAny();
     const cls   = voted ? 'btn-votar-lector voted' : anyVote ? 'btn-votar-lector locked' : 'btn-votar-lector';
-    const label = voted ? '★ Ya votaste por este cuento'
-                : anyVote ? '🔒 Voto bloqueado'
-                : '★ Votar por este cuento';
-    z.innerHTML = `<button class="${cls}" onclick="tryVote(${story.id})">${label}</button>`;
+    const label = voted ? '★ Ya votaste'
+                : anyVote ? '🔒 Bloqueado'
+                : '★ Votar';
+    const btnHtml = show
+      ? `<button class="${cls}" onclick="tryVote(${story.id})">${label}</button>`
+      : '<div class="vote-spacer"></div>';
+
+    // Desktop
+    const z = document.getElementById('voteZone');
+    if (z) z.innerHTML = btnHtml;
+
+    // Móvil (etiqueta más corta)
+    const mz = document.getElementById('mVoteZone');
+    if (mz) mz.innerHTML = show ? `<button class="${cls}" onclick="tryVote(${story.id})" style="font-size:12px;padding:7px 14px;">${label}</button>` : '';
   }
 
   /* ── Navegación con cooldown ── */

@@ -1329,7 +1329,7 @@ li {
    RESPONSIVE — CATÁLOGO
    ============================================= */
 @media (max-width: 768px) {
-    .body-catalogo header { padding: 16px 20px; }
+    .body-catalogo header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
     .body-catalogo main   { padding: 0 16px 32px; }
 
     .catalogo-layout { flex-direction: column; }
@@ -1351,14 +1351,15 @@ li {
 
 @media (max-width: 480px) {
     .grid-catalogo { grid-template-columns: 1fr; }
-    .title-catalogo { font-size: 18px; }
+    .title-catalogo { font-size: 17px; }
+    .btn-nav-page { font-size: 12px; padding: 6px 10px; }
 }
 
 /* =============================================
    RESPONSIVE — RANKING
    ============================================= */
 @media (max-width: 768px) {
-    .body-ranking header { padding: 16px 20px; }
+    .body-ranking header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
     .body-ranking main   { padding: 0 16px 40px; }
 
     .podio { gap: 8px; }
@@ -1366,8 +1367,9 @@ li {
     .podio-label { font-size: 11px; }
     .podio-num   { font-size: 30px; }
 
-    .rank-pill  { font-size: 12px; padding: 10px 14px; gap: 6px; }
+    .rank-pill  { font-size: 12px; padding: 10px 14px; gap: 6px; flex-wrap: wrap; }
     .rank-num   { font-size: 18px; width: 28px; }
+    .rank-votes { font-size: 12px; }
 
     .body-ranking footer {
         padding: 24px 20px;
@@ -1385,7 +1387,12 @@ li {
 @media (max-width: 480px) {
     .podio { gap: 4px; }
     .btn-ver-cuento { font-size: 11px; padding: 7px 12px; }
-    .ranking-title  { font-size: 20px; margin-bottom: 28px; }
+    .ranking-title  { font-size: 18px; margin-bottom: 24px; }
+    /* Ocultar separador y mostrar datos en columna en pantallas muy pequeñas */
+    .rank-pill { flex-direction: column; align-items: flex-start; gap: 2px; border-radius: 16px; }
+    .rank-sep  { display: none; }
+    .rank-votes { margin-left: 0; }
+    .btn-nav-page { font-size: 12px; padding: 6px 10px; }
 }
 
 /* =============================================
@@ -1487,3 +1494,44 @@ li {
 .btn-logout:hover { background: rgba(255, 255, 255, 0.2); }
 .btn-login-header { color: var(--text-light); font-weight: 600; text-decoration: none; font-family: var(--font); font-size: 14px; padding: 9px 18px; border-radius: 24px; border: 1.5px solid var(--border); transition: border-color 0.2s, background 0.2s, color 0.2s; }
 .btn-login-header:hover { border-color: var(--orange); background: rgba(255, 122, 24, 0.08); color: var(--orange); }
+
+/* =============================================
+   HEADER NAV (reemplaza estilos inline de nav)
+   ============================================= */
+.header-nav {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* En pantallas pequeñas: ocultar texto del nombre de usuario para ahorrar espacio */
+@media (max-width: 560px) {
+    .header-nav {
+        gap: 6px;
+    }
+    .user-name {
+        display: none;
+    }
+    .btn-nav-page {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+    .btn-nav {
+        font-size: 12px;
+        padding: 7px 12px;
+    }
+    /* Header compacto en el lector: se permite que el título ocupe su propia línea */
+    .body-lector header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 12px 14px;
+    }
+    .body-lector header .header-nav {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
