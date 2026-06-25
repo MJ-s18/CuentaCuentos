@@ -17,7 +17,6 @@
     body { min-height: 100vh; background: radial-gradient(ellipse at 20% 0%, rgba(255,122,24,.08), transparent 50%), linear-gradient(160deg, #161616, #1e1e1e); }
     main { max-width: 760px; margin: 0 auto; padding: 40px 20px; }
     
-    /* Replicamos navegación */
     .site-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
     .site-logo { font-weight: 700; color: var(--orange); text-decoration: none; line-height: 1.1; }
     .nav-links { display: flex; gap: 15px; }
@@ -34,8 +33,9 @@
     
     .preview-card { display: none; background: #2a2a2a; padding: 20px; border-radius: 18px; margin-top: 20px; }
     .preview-card.show { display: block; }
-    .preview-spread { background: #fdf6ee; border-radius: 10px; padding: 16px; margin-bottom: 15px; position: relative; }
-    .preview-header-small { display: flex; justify-content: space-between; font-weight: 700; color: #c96a2d; font-size: 12px; margin-bottom: 8px; }
+    .preview-spread { background: #fdf6ee; border-radius: 10px; padding: 16px; margin-bottom: 15px; }
+    .preview-half { margin-bottom: 10px; }
+    .preview-half h4 { color: #c96a2d; margin: 0 0 5px 0; font-size: 12px; }
     .preview-half textarea { width: 100%; min-height: 80px; font-family: serif; font-size: 13px; padding: 8px; border: 1px solid #e0c9a8; border-radius: 6px; }
   </style>
 </head>
@@ -69,7 +69,8 @@
     </div>
 
     <div class="form-card preview-card" id="previewCard">
-      <h3 style="color:white; margin-bottom:15px;">📖 Vista previa</h3>
+      <h3 style="color:white; margin-bottom:5px;">📖 Vista previa</h3>
+      <p id="previewCount" style="color:var(--orange); font-size:14px; margin-bottom:15px;"></p>
       <div id="previewSpreads"></div>
       <button class="btn-extraer" onclick="guardarCuento()" style="background:#2e7d32; margin-top:20px;">✓ Guardar Cuento</button>
     </div>
@@ -79,7 +80,6 @@
     let paginasGeneradas = [];
     let archivoActual = null;
     
-    // Al cargar, aseguramos que el admin esté logueado
     if (sessionStorage.getItem('cc_admin') !== 'true') window.location.href = '../index.html';
 
     fileInput.addEventListener('change', () => { 
@@ -100,28 +100,47 @@
 
     function renderPreview() {
       const cont = document.getElementById('previewSpreads');
+      paginasGeneradas = paginasGeneradas.filter(p => (p.l || '').trim() !== '' || (p.r || '').trim() !== '');
+      document.getElementById('previewCount').textContent = `${paginasGeneradas.length} hojas`;
+
       cont.innerHTML = paginasGeneradas.map((p, i) => `
-        <div class="preview-spread">
-          <div class="preview-header-small">
-            <span>Página ${i + 1}</span>
-            <button onclick="eliminarPagina(${i})" style="color:red; cursor:pointer; background:none; border:none;">✕ Eliminar</button>
+        <div class="preview-spread" id="spread-${i}">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong>Hoja ${i + 1}</strong>
+            <button onclick="eliminarPagina(${i})" style="background:#d9231d; color:white; border:none; border-radius:8px; padding:6px 10px; cursor:pointer;">🗑 Eliminar hoja</button>
           </div>
           <div class="preview-half">
-            <textarea oninput="paginasGeneradas[${i}].l = this.value">${p.l}</textarea>
+            <h4>Izquierda</h4>
+            <textarea onchange="actualizarTexto(${i}, 'l', this.value)">${escapeHtml(p.l)}</textarea>
           </div>
           <div class="preview-half">
-            <textarea oninput="paginasGeneradas[${i}].r = this.value">${p.r}</textarea>
+            <h4>Derecha</h4>
+            <textarea onchange="actualizarTexto(${i}, 'r', this.value)">${escapeHtml(p.r)}</textarea>
           </div>
         </div>
       `).join('');
       document.getElementById('previewCard').classList.add('show');
     }
 
-    function eliminarPagina(idx) {
-      if (confirm('¿Eliminar esta página?')) {
+    function actualizarTexto(idx, lado, valor) {
+      paginasGeneradas[idx][lado] = valor;
+      const pagina = paginasGeneradas[idx];
+      if ((!pagina.l || !pagina.l.trim()) && (!pagina.r || !pagina.r.trim())) {
         paginasGeneradas.splice(idx, 1);
         renderPreview();
       }
+    }
+
+    function eliminarPagina(idx) {
+      if (!confirm(`¿Eliminar la hoja ${idx + 1}?`)) return;
+      paginasGeneradas.splice(idx, 1);
+      renderPreview();
+      mostrarStatus('🗑 Hoja eliminada correctamente.', 'success');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
   </script>
 </body>
