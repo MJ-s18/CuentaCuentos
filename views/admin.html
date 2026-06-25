@@ -6,7 +6,6 @@
   <title>Subir Cuento | Admin — Pequeñas Historias Grandes Valores</title>
   <link rel="stylesheet" href="../styles/shared.css">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../JS/supabase-client.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -15,27 +14,27 @@
   <script src="../JS/extractor-cuentos.js"></script>
 
   <style>
-    /* Recuperación del diseño original */
     body { min-height: 100vh; background: radial-gradient(ellipse at 20% 0%, rgba(255,122,24,.08), transparent 50%), linear-gradient(160deg, #161616, #1e1e1e); }
-    main { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
-    .admin-title { font-size: clamp(22px,3vw,30px); font-weight: 700; margin-bottom: 6px; }
-    .admin-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+    main { max-width: 760px; margin: 0 auto; padding: 40px 20px; }
     
+    /* Replicamos navegación */
+    .site-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+    .site-logo { font-weight: 700; color: var(--orange); text-decoration: none; line-height: 1.1; }
+    .nav-links { display: flex; gap: 15px; }
+    .btn-nav { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; text-decoration: none; color: white; font-size: 14px; }
+    .btn-nav:hover { border-color: var(--orange); }
+
     .form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 28px; margin-bottom: 24px; }
     .form-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
     .form-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 12px; font-weight: 700; color: var(--orange); text-transform: uppercase; }
-    .form-group input, .form-group textarea { padding: 11px 14px; background: #1a1a1a; border: 1.5px solid var(--border); border-radius: 10px; color: var(--text-light); font-size: 14px; outline: none; transition: border-color .2s; }
-    .form-group input:focus { border-color: var(--orange); }
-
-    .dropzone { border: 2px dashed var(--border); border-radius: 14px; padding: 32px; text-align: center; cursor: pointer; transition: border-color .2s; margin-bottom: 10px; }
-    .dropzone:hover { border-color: var(--orange); }
-    
+    .form-group input, .form-group textarea { padding: 11px 14px; background: #1a1a1a; border: 1px solid var(--border); border-radius: 10px; color: var(--text-light); font-size: 14px; outline: none; }
+    .dropzone { border: 2px dashed var(--border); border-radius: 14px; padding: 32px; text-align: center; cursor: pointer; margin-bottom: 10px; }
     .btn-extraer { width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--orange); color: #fff; font-weight: 700; cursor: pointer; }
     
-    .preview-card { display: none; background: var(--card-bg); border: 1px solid var(--border); padding: 28px; border-radius: 18px; }
+    .preview-card { display: none; background: #2a2a2a; padding: 20px; border-radius: 18px; margin-top: 20px; }
     .preview-card.show { display: block; }
-    .preview-spread { background: #fdf6ee; border-radius: 10px; padding: 16px; margin-bottom: 15px; }
+    .preview-spread { background: #fdf6ee; border-radius: 10px; padding: 16px; margin-bottom: 15px; position: relative; }
     .preview-header-small { display: flex; justify-content: space-between; font-weight: 700; color: #c96a2d; font-size: 12px; margin-bottom: 8px; }
     .preview-half textarea { width: 100%; min-height: 80px; font-family: serif; font-size: 13px; padding: 8px; border: 1px solid #e0c9a8; border-radius: 6px; }
   </style>
@@ -44,10 +43,14 @@
 
   <header class="site-header">
     <a href="../index.html" class="site-logo">Pequeñas Historias<br><span>GRANDES VALORES</span></a>
+    <nav class="nav-links">
+      <a href="catalogo.html" class="btn-nav">📚 Catálogo</a>
+      <a href="../index.html" class="btn-nav">🏠 Inicio</a>
+    </nav>
   </header>
 
   <main id="adminPanel">
-    <h1 class="admin-title">📤 Subir nuevo cuento</h1>
+    <h1 style="color:white; margin-bottom: 20px;">📤 Subir nuevo cuento</h1>
     <div class="form-card">
       <div class="form-row">
         <div class="form-group"><label>Título</label><input type="text" id="fTitulo"></div>
@@ -63,11 +66,10 @@
         <p id="dzText">Hacé clic para elegir archivo</p>
       </div>
       <button class="btn-extraer" id="btnExtraer" onclick="procesarArchivo()" disabled>⚙️ Extraer texto</button>
-      <div class="status-msg" id="statusMsg"></div>
     </div>
 
     <div class="form-card preview-card" id="previewCard">
-      <h3>📖 Vista previa</h3>
+      <h3 style="color:white; margin-bottom:15px;">📖 Vista previa</h3>
       <div id="previewSpreads"></div>
       <button class="btn-extraer" onclick="guardarCuento()" style="background:#2e7d32; margin-top:20px;">✓ Guardar Cuento</button>
     </div>
@@ -76,6 +78,9 @@
   <script>
     let paginasGeneradas = [];
     let archivoActual = null;
+    
+    // Al cargar, aseguramos que el admin esté logueado
+    if (sessionStorage.getItem('cc_admin') !== 'true') window.location.href = '../index.html';
 
     fileInput.addEventListener('change', () => { 
         if (fileInput.files[0]) { 
@@ -87,8 +92,8 @@
 
     async function procesarArchivo() {
       try {
-        const resultado = await extraerYPaginarCuento(archivoActual);
-        paginasGeneradas = resultado.paginas;
+        const res = await extraerYPaginarCuento(archivoActual);
+        paginasGeneradas = res.paginas;
         renderPreview();
       } catch (err) { alert('Error: ' + err.message); }
     }
