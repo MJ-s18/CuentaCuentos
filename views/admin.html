@@ -330,7 +330,11 @@
       document.getElementById('previewCount').textContent = `${paginasGeneradas.length} hojas`;
 
       cont.innerHTML = paginasGeneradas.map((p, i) => `
-        <div class="preview-spread">
+        <div class="preview-spread" id="spread-${i}">
+          <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:11px; color:#c96a2d; font-weight:700; text-transform:uppercase; letter-spacing:.5px;">Hoja ${i + 1}</span>
+            <button onclick="eliminarPagina(${i})" style="background:#d9231d; color:white; border:none; border-radius:7px; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer;">🗑 Eliminar hoja</button>
+          </div>
           <div class="preview-half">
             <h4>${escapeHtml(p.lt)} — Izquierda</h4>
             <textarea data-idx="${i}" data-side="l">${escapeHtml(p.l)}</textarea>
@@ -359,6 +363,13 @@
       const div = document.createElement('div');
       div.textContent = str || '';
       return div.innerHTML;
+    }
+
+    function eliminarPagina(idx) {
+      if (!confirm(`¿Eliminar la hoja ${idx + 1}?`)) return;
+      paginasGeneradas.splice(idx, 1);
+      renderPreview();
+      mostrarStatus('🗑 Hoja eliminada correctamente.', 'success');
     }
 
     // ── Guardar en Supabase ──
