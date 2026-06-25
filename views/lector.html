@@ -376,10 +376,7 @@
   .mobile-nav-bar {
     display: none; /* oculta siempre por defecto */
   }
-  /* Se muestra solo en móvil Y cuando el libro está abierto */
-  .mobile-nav-bar.active {
-    display: flex;
-  }
+  /* Se muestra solo en móvil Y cuando el libro está abierto (gestionado en el @media) */
 
   /* EL LIBRO */
   .book {
@@ -959,7 +956,14 @@
     window.addEventListener('resize', () => {
       const was = isMobile;
       checkMobile();
-      if (was !== isMobile) renderSpread();
+      if (was !== isMobile) {
+        if (isMobile) {
+          if (spread > 0) spread = (spread - 1) * 2 + 1;
+        } else {
+          if (spread > 0) spread = Math.floor((spread - 1) / 2) + 1;
+        }
+        renderSpread();
+      }
     });
   })();
 
@@ -995,10 +999,11 @@
     if (!story) return;
 
     const spreads = story.content;
-    const total   = spreads.length;
+    const total   = isMobile ? (1 + spreads.length * 2) : (1 + spreads.length);
+    if (spread >= total) spread = total - 1;
+
     const isFirst = spread === 0;
-    const isLast  = spread >= total - 1;
-    const cur     = spreads[spread];
+    const isLast  = spread === total - 1;
 
     const pgLeft  = document.getElementById('pgLeft');
     const pgRight = document.getElementById('pgRight');
@@ -1006,37 +1011,54 @@
     const btnNext = document.getElementById('btnNext');
     const pgLbl   = document.getElementById('pgLabel');
 
-    /* ─ Página IZQUIERDA ─ */
-    if (isFirst) {
-      // Primer spread: izquierda muestra el título del capítulo actual como portadilla
-      pgLeft.classList.remove('hide-m');
-      pgLeft.innerHTML = `
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;text-align:center;padding:10px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#b09070;font-family:var(--font);">Pequeñas Historias · Grandes Valores</div>
-          <div style="width:40px;height:2px;background:#d4a86a;border-radius:2px;margin:6px 0;"></div>
-          <div style="font-family:'Caveat',cursive;font-size:clamp(22px,4vw,34px);font-weight:700;color:#2e1a06;line-height:1.2;">${story.coverText || story.title}</div>
-          <div style="font-family:var(--font);font-size:13px;color:#8a6a40;font-weight:600;margin-top:4px;">${story.author}</div>
-          <div style="font-family:var(--font);font-size:11px;color:#b09070;">${story.school}</div>
-        </div>
-        <div class="pg-num">i</div>`;
-    } else {
-      if (isMobile) {
-        pgLeft.classList.add('hide-m');
+    const portadillaHtml = `
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;text-align:center;padding:10px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#b09070;font-family:var(--font);">Pequeñas Historias · Grandes Valores</div>
+        <div style="width:40px;height:2px;background:#d4a86a;border-radius:2px;margin:6px 0;"></div>
+        <div style="font-family:'Caveat',cursive;font-size:clamp(22px,4vw,34px);font-weight:700;color:#2e1a06;line-height:1.2;">${story.coverText || story.title}</div>
+        <div style="font-family:var(--font);font-size:13px;color:#8a6a40;font-weight:600;margin-top:4px;">${story.author}</div>
+        <div style="font-family:var(--font);font-size:11px;color:#b09070;">${story.school}</div>
+      </div>
+      <div class="pg-num">i</div>`;
+
+    if (isMobile) {
+      pgLeft.classList.add('hide-m');
+      
+      if (isFirst) {
+        pgRight.innerHTML = portadillaHtml;
       } else {
-        pgLeft.classList.remove('hide-m');
-        const prev = spreads[spread - 1];
+        const pageIndex = spread - 1;
+        const contentIndex = Math.floor(pageIndex / 2);
+        const isLeftText = pageIndex % 2 === 0;
+        const cur = spreads[contentIndex];
+        const text = isLeftText ? cur.l : cur.r;
+        
+        pgRight.innerHTML = `
+          <div class="chapter-label">${cur.lt}</div>
+          <p class="book-text">${text}</p>
+          <div class="pg-num">${pageIndex + 1}</div>`;
+      }
+    } else {
+      pgLeft.classList.remove('hide-m');
+      
+      if (isFirst) {
+        pgLeft.innerHTML = ``;
+        pgRight.innerHTML = portadillaHtml;
+      } else {
+        const contentIndex = spread - 1;
+        const cur = spreads[contentIndex];
+        
         pgLeft.innerHTML = `
-          <div class="chapter-label">${prev.lt}</div>
-          <p class="book-text">${prev.r}</p>
-          <div class="pg-num">${spread * 2}</div>`;
+          <div class="chapter-label">${cur.lt}</div>
+          <p class="book-text">${cur.l}</p>
+          <div class="pg-num">${contentIndex * 2 + 1}</div>`;
+          
+        pgRight.innerHTML = `
+          <div class="chapter-label">${cur.lt}</div>
+          <p class="book-text">${cur.r}</p>
+          <div class="pg-num">${contentIndex * 2 + 2}</div>`;
       }
     }
-
-    /* ─ Página DERECHA ─ */
-    pgRight.innerHTML = `
-      <div class="chapter-label">${cur.lt}</div>
-      <p class="book-text">${cur.l}</p>
-      <div class="pg-num">${spread * 2 + 1}</div>`;
 
     /* ─ Controles desktop ─ */
     if (btnPrev) btnPrev.disabled = isFirst;
@@ -1105,7 +1127,8 @@
   }
 
   function nextSpread() {
-    if (!story || spread >= story.content.length - 1 || flipCd) return;
+    const total = isMobile ? (1 + story.content.length * 2) : (1 + story.content.length);
+    if (!story || spread >= total - 1 || flipCd) return;
     flipTo('next', () => spread++);
   }
 
@@ -1134,7 +1157,8 @@
   const _cv = castVote;
   castVote = async function(id) {
     await _cv(id);
-    const isLast = story && spread >= story.content.length - 1;
+    const total = isMobile ? (1 + story.content.length * 2) : (1 + story.content.length);
+    const isLast = story && spread >= total - 1;
     renderVoteBtn(isLast);
   };
   </script>
