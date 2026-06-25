@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           const user = data.user;
           const nombre = user.user_metadata?.full_name || email.split('@')[0];
-          
+
           // Buscar si tiene voto registrado
           const { data: votoData } = await supabase
             .from('votos')
@@ -140,15 +140,40 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = signupForm.password.value;
       const telefono = signupForm.number?.value?.trim() || '';
 
-      // Validaciones front-end
+      // ── Validaciones front-end ──────────────────────────────────────
       let valid = true;
-      if (!nombre)                  { showFieldError(signupForm.name,     'Ingresá tu nombre');           valid = false; }
-      if (!email)                   { showFieldError(signupForm.email,    'Ingresá tu email');             valid = false; }
-      if (password.length < 8)     { showFieldError(signupForm.password, 'Mínimo 8 caracteres');          valid = false; }
+
+      // Nombre: solo letras, espacios y acentos (sin números ni símbolos)
+      const NOMBRE_REGEX = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]{2,80}$/;
+      if (!nombre) {
+        showFieldError(signupForm.name, 'Ingresá tu nombre');
+        valid = false;
+      } else if (!NOMBRE_REGEX.test(nombre)) {
+        showFieldError(signupForm.name, 'El nombre solo puede contener letras y espacios (sin números ni símbolos)');
+        valid = false;
+      }
+
+      if (!email) {
+        showFieldError(signupForm.email, 'Ingresá tu email');
+        valid = false;
+      }
+
+      // Teléfono: opcional, pero si se llena debe ser solo números válidos
+      const TELEFONO_REGEX = /^\+?[0-9\s\-]{7,20}$/;
+      if (telefono && !TELEFONO_REGEX.test(telefono)) {
+        showFieldError(signupForm.number, 'El teléfono solo puede contener números (ej: +591 71234567)');
+        valid = false;
+      }
+
+      if (password.length < 8) {
+        showFieldError(signupForm.password, 'Mínimo 8 caracteres');
+        valid = false;
+      }
       if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
         showFieldError(signupForm.password, 'La contraseña debe tener letras y números');
         valid = false;
       }
+
       if (!valid) return;
 
       setLoading(signupForm, true);
@@ -204,16 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
       googleBtn.textContent = 'Conectando con Google…';
       try {
         if (!supabase) throw new Error('Supabase no inicializado');
-        
+
         const redirectUrl = window.location.origin + '/index.html';
-        
+
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
             redirectTo: redirectUrl
           }
         });
-        
+
         if (error) throw error;
       } catch (err) {
         googleBtn.disabled    = false;
