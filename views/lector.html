@@ -693,12 +693,27 @@
 
     .mobile-nav-dots {
       display: flex;
-      gap: 6px;
+      gap: 5px;
       align-items: center;
+      max-width: 150px;
+      overflow: hidden;
     }
     .mobile-nav-dots .l-dot {
+      width: 7px;
+      height: 7px;
+      flex-shrink: 0;
+      transition: transform .2s, background .2s, width .2s, height .2s;
+    }
+    .mobile-nav-dots .l-dot.active {
       width: 9px;
       height: 9px;
+    }
+    .mobile-nav-dots .l-dot-edge {
+      font-size: 10px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      line-height: 1;
+      font-weight: 700;
     }
     .mobile-nav-pg {
       font-family: var(--font);
@@ -1079,16 +1094,38 @@
 
   /* ── Dots ── */
   function renderDots(total) {
-    const dotsHtml = Array.from({ length: total }, (_, i) => {
+    // Desktop: mostrar todos los puntos (suele haber espacio)
+    const dotsHtmlFull = Array.from({ length: total }, (_, i) => {
       const c = i < spread ? 'l-dot done' : i === spread ? 'l-dot active' : 'l-dot';
       return `<div class="${c}" title="Página ${i+1}"></div>`;
     }).join('');
-    // Desktop
     const el = document.getElementById('lectorDots');
-    if (el) el.innerHTML = dotsHtml;
-    // Móvil
+    if (el) el.innerHTML = dotsHtmlFull;
+
+    // Móvil: ventana deslizante de máx. 7 puntos centrada en la página actual
+    // (evita que se amontonen o se vean microscópicos con cuentos largos)
     const mel = document.getElementById('mLectorDots');
-    if (mel) mel.innerHTML = dotsHtml;
+    if (mel) {
+      const MAX_DOTS = 7;
+      let start = 0, end = total;
+
+      if (total > MAX_DOTS) {
+        const half = Math.floor(MAX_DOTS / 2);
+        start = Math.max(0, spread - half);
+        end   = start + MAX_DOTS;
+        if (end > total) { end = total; start = end - MAX_DOTS; }
+      }
+
+      let dotsHtmlMobile = '';
+      if (start > 0) dotsHtmlMobile += `<div class="l-dot-edge">‹</div>`;
+      for (let i = start; i < end; i++) {
+        const c = i < spread ? 'l-dot done' : i === spread ? 'l-dot active' : 'l-dot';
+        dotsHtmlMobile += `<div class="${c}"></div>`;
+      }
+      if (end < total) dotsHtmlMobile += `<div class="l-dot-edge">›</div>`;
+
+      mel.innerHTML = dotsHtmlMobile;
+    }
   }
 
   /* ── Botón votar (solo al llegar al final) ── */
