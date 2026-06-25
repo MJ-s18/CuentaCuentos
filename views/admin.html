@@ -188,6 +188,10 @@
           <input type="text" id="fColegio" placeholder="Ej: Colegio San Juan">
         </div>
         <div class="form-group">
+          <label>Curso</label>
+          <input type="text" id="fCurso" placeholder="Ej: 5to de Secundaria" maxlength="50">
+        </div>
+        <div class="form-group">
           <label>Fecha</label>
           <input type="date" id="fFecha">
         </div>
@@ -366,6 +370,7 @@
       const titulo  = document.getElementById('fTitulo').value.trim();
       const autor   = document.getElementById('fAutor').value.trim();
       const colegio = document.getElementById('fColegio').value.trim();
+      const curso   = document.getElementById('fCurso').value.trim();
       const fecha   = document.getElementById('fFecha').value || null;
       const desc    = document.getElementById('fDesc').value.trim();
 
@@ -392,6 +397,7 @@
           title:      titulo,
           author:     autor,
           school:     colegio || null,
+          curso:      curso || null,
           date:       fecha,
           desc:       desc || null,
           cover:      cover,
@@ -420,6 +426,7 @@
       document.getElementById('fTitulo').value = '';
       document.getElementById('fAutor').value = '';
       document.getElementById('fColegio').value = '';
+      document.getElementById('fCurso').value = '';
       document.getElementById('fFecha').value = '';
       document.getElementById('fDesc').value = '';
       archivoActual = null;
@@ -437,7 +444,7 @@
         const sb = window.supabaseClient;
         const { data, error } = await sb
           .from('cuentos')
-          .select('id, title, author, school, votes, cover')
+          .select('id, title, author, school, curso, votes, cover')
           .eq('activo', true)
           .order('id', { ascending: false });
 
@@ -452,7 +459,7 @@
           <div class="cuento-row">
             <div class="swatch" style="background:${c.cover || '#ff8c1a'}"></div>
             <div class="name">${escapeHtml(c.title)}</div>
-            <div class="meta">${escapeHtml(c.author)} · ${escapeHtml(c.school || '—')} · ${c.votes} votos</div>
+            <div class="meta">${escapeHtml(c.author)} · ${escapeHtml(c.school || '—')} ${c.curso ? `(${escapeHtml(c.curso)})` : ''} · ${c.votes} votos</div>
           </div>
         `).join('');
       } catch (err) {
