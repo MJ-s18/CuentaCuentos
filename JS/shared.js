@@ -202,6 +202,39 @@ function _renderAdminToggle() {
 
   const widget = nav.querySelector('.user-widget');
   widget ? nav.insertBefore(btn, widget) : nav.appendChild(btn);
+}function _renderAdminToggle() {
+  // Buscamos '.header-nav' (catálogo/ranking) o '.site-nav' (admin.html)
+  const nav = document.querySelector('.header-nav, .site-nav');
+  if (!nav || nav.querySelector('.btn-admin-toggle')) return;
+
+  const btn = document.createElement('button');
+  btn.className   = 'btn-nav btn-admin-toggle';
+  btn.title       = isAdmin() ? 'Ir al Panel' : 'Admin';
+  btn.textContent = isAdmin() ? '🔓 Panel Admin' : '🔒 Admin';
+  
+  if (isAdmin()) {
+    btn.style.cssText = 'border-color:rgba(255,122,24,.5);color:var(--orange); cursor:pointer;';
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (isAdmin()) {
+      // Redirigir al panel si ya inició sesión
+      const adminPath = IS_IN_VIEWS ? 'admin.html' : 'views/admin.html';
+      window.location.href = adminPath;
+    } else {
+      // Abrir modal de contraseña
+      openAdminModal();
+    }
+  });
+
+  // Insertar el botón justo antes del widget de usuario (foto/login)
+  const widget = nav.querySelector('.user-widget') || nav.querySelector('#user-widget');
+  if (widget) {
+    nav.insertBefore(btn, widget);
+  } else {
+    nav.appendChild(btn);
+  }
 }
 
 // Ocultar botón Setup/QR si no es admin
