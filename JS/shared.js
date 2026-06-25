@@ -181,29 +181,10 @@ async function _handleAdminLogin() {
 
 // Botón 🔑 en la nav
 function _renderAdminToggle() {
-  const nav = document.querySelector('.site-nav');
-  if (!nav || nav.querySelector('.btn-admin-toggle')) return;
+  // 1. SI ESTAMOS EN LAS PÁGINAS INTERNAS (Catálogo, Lector, Ranking), NO HACEMOS NADA
+  if (IS_IN_VIEWS) return;
 
-  const btn = document.createElement('button');
-  btn.className   = 'btn-nav btn-admin-toggle';
-  btn.title       = isAdmin() ? 'Cerrar sesión admin' : 'Admin';
-  btn.textContent = isAdmin() ? '🔓 Admin' : '🔑';
-  if (isAdmin()) btn.style.cssText = 'border-color:rgba(255,122,24,.5);color:var(--orange);';
-
-  btn.addEventListener('click', () => {
-    if (isAdmin()) {
-      _adminLogout();
-      showToast('Sesión admin cerrada', 'warning');
-      setTimeout(() => location.reload(), 700);
-    } else {
-      openAdminModal();
-    }
-  });
-
-  const widget = nav.querySelector('.user-widget');
-  widget ? nav.insertBefore(btn, widget) : nav.appendChild(btn);
-}function _renderAdminToggle() {
-  // Buscamos '.header-nav' (catálogo/ranking) o '.site-nav' (admin.html)
+  // 2. Buscamos '.header-nav' o '.site-nav'
   const nav = document.querySelector('.header-nav, .site-nav');
   if (!nav || nav.querySelector('.btn-admin-toggle')) return;
 
@@ -343,7 +324,6 @@ async function logout() {
   window.location.href = LOGIN_URL;
 }
 
-// ── Cargar cuentos desde JSON ─────────────────
 // ── Cargar cuentos desde JSON y Supabase ─────────────────
 async function loadStories() {
   // 1. Cargar los cuentos "base" del archivo JSON
@@ -371,6 +351,7 @@ async function loadStories() {
           title:     c.title,
           author:    c.author,
           school:    c.school,
+          curso:     c.curso,
           date:      c.date,
           desc:      c.desc,
           cover:     c.cover,
