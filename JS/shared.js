@@ -311,13 +311,51 @@ async function logout() {
 }
 
 // ── Cargar cuentos desde JSON ─────────────────
+// ── Cargar cuentos desde JSON y Supabase ─────────────────
 async function loadStories() {
+  // 1. Cargar los cuentos "base" del archivo JSON
   const res = await fetch(STORIES_PATH);
-  stories   = await res.json();
+  const storiesJSON = await res.json();
+  
+  // Los votos iniciales son un placeholder
+  storiesJSON.forEach(s => { s.votes = 0; });
 
-  // Los votos de cuentos.json son solo un placeholder.
-  stories.forEach(s => { s.votes = 0; });
+  // 2. Cargar los cuentos nuevos subidos desde el panel admin (Supabase)
+  let storiesSupabase = [];
+  try {
+    const sb = window.supabaseClient;
+    if (sb) {
+      const { data, error } = await sb
+        .from('cuentos')
+        .select('*')
+        .eq('activo', true);
 
+      if (!error && data) {
+        // Los IDs de Supabase empiezan en 1 también, así que les sumamos
+        // un offset grande para que nunca choquen con los IDs del JSON.
+        storiesSupabase = data.map(c => ({
+          id:        c.id + 100000,           // offset para evitar colisión de IDs
+          title:     c.title,
+          author:    c.author,
+          school:    c.school,
+          date:      c.date,
+          desc:      c.desc,
+          cover:     c.cover,
+          coverText: c.coverText,
+          votes:     c.votes || 0,
+          content:   c.content,               // ya viene en formato [{lt,l,r}]
+          _supabaseId: c.id,                  // guardamos el ID real por las dudas
+        }));
+      }
+    }
+  } catch (err) {
+    console.error('⚠️ No se pudieron cargar los cuentos extra desde Supabase:', err);
+  }
+
+  // 3. Combinar ambas fuentes (JSON + Supabase)
+  stories = [...storiesJSON, ...storiesSupabase];
+
+  // 4. Traer el conteo de votos actualizado (Lógica original de Supabase)
   try {
     const { data: votosData, error } = await window.supabaseClient
       .from('votos')
@@ -330,6 +368,7 @@ async function loadStories() {
       conteo[v.cuento_id] = (conteo[v.cuento_id] || 0) + 1;
     });
 
+    // Actualizar los votos en el array combinado
     stories.forEach(s => {
       s.votes = conteo[s.id] || 0;
     });
