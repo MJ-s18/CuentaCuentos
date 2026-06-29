@@ -498,8 +498,23 @@
 <body>
 
   <header class="site-header">
-    <a href="index.html" class="site-logo">Pequeñas Historias<br><span>GRANDES VALORES</span></a>
-    <nav class="site-nav">
+    <div class="header-brand">
+      <span class="header-logo-wrap">
+        <img src="assets/Images/logoPeriodismo.png" alt="Logo Periodismo" class="header-logo">
+      </span>
+      <a href="index.html" class="site-logo">Pequeñas Historias<br><span>GRANDES VALORES</span></a>
+      <span class="header-logo-wrap">
+        <img src="assets/Images/logoUnifranz.png" alt="Logo Unifranz" class="header-logo">
+      </span>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="siteNav">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+
+    <nav class="site-nav" id="siteNav">
       <a href="views/catalogo.html" class="btn-nav">📚 Catálogo</a>
       <a href="views/ranking.html" class="btn-nav">🏅 Ranking</a>
       <a href="despliegue.html" class="btn-nav btn-nav--setup" title="Setup y código QR del concurso">⚙️ Setup / QR</a>
@@ -508,6 +523,36 @@
       </div>
     </nav>
   </header>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('navToggle');
+      const nav = document.getElementById('siteNav');
+
+      function closeNav() {
+        nav.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!nav.contains(e.target) && !toggle.contains(e.target)) closeNav();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeNav();
+      });
+
+      nav.addEventListener('click', (e) => {
+        if (e.target.closest('a')) closeNav();
+      });
+    })();
+  </script>
 
   <!-- HERO -->
   <section class="hero">
