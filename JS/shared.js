@@ -369,17 +369,21 @@ async function loadStories() {
   // 3. Combinar ambas fuentes (JSON + Supabase)
   stories = [...storiesJSON, ...storiesSupabase];
 
-  // 4. Traer el conteo de votos actualizado (Lógica original de Supabase)
+  // 4. Traer el conteo de votos actualizado
+  //    OJO: NO se trae 1 fila por voto (eso choca con el límite de 1000
+  //    filas por consulta de Supabase/PostgREST). En vez de eso se usa la
+  //    vista "votos_conteo" (ver sql/fix_conteo_votos.sql) que ya trae
+  //    el total agrupado por cuento: 1 fila por cuento, no por voto.
   try {
-    const { data: votosData, error } = await window.supabaseClient
-      .from('votos')
-      .select('cuento_id');
+    const { data: conteoData, error } = await window.supabaseClient
+      .from('votos_conteo')
+      .select('cuento_id, total');
 
     if (error) throw error;
 
     const conteo = {};
-    (votosData || []).forEach(v => {
-      conteo[v.cuento_id] = (conteo[v.cuento_id] || 0) + 1;
+    (conteoData || []).forEach(v => {
+      conteo[v.cuento_id] = v.total;
     });
 
     // Actualizar los votos en el array combinado
